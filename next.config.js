@@ -2,6 +2,7 @@
 const nextConfig = {
   images: {
     domains: ['images.unsplash.com'],
+    unoptimized: false, // Keep optimization enabled, but allow per-image override
   },
   env: {
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
