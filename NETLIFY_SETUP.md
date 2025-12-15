@@ -17,7 +17,11 @@
    Go to **Site settings** → **Environment variables** and add:
 
    **Required:**
-   - `NEXT_PUBLIC_API_URL` = Your Railway backend URL (e.g., `https://your-backend.railway.app/api`)
+   - `NEXT_PUBLIC_API_URL` = Your Railway backend URL **MUST END WITH /api** (e.g., `https://your-backend.railway.app/api`)
+   
+   **⚠️ IMPORTANT:** The URL must include `/api` at the end! 
+   - ✅ Correct: `https://gracious-growth-production-6d22.up.railway.app/api`
+   - ❌ Wrong: `https://gracious-growth-production-6d22.up.railway.app`
    - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` = Your Google Maps API key
 
    **Example:**
@@ -88,3 +92,4 @@ After successful deployment:
 Netlify automatically deploys when you push to your main branch. To deploy manually:
 1. Go to **Deploys** tab
 2. Click **"Trigger deploy"** → **"Deploy site"**
+
