@@ -192,15 +192,15 @@ export default function DriversPage() {
   const handleViewKYC = async (driver: any) => {
     try {
       // Get full user details to ensure we have avatar
-      const userDetails = await api.getUser(driver.id)
+      const userDetails: any = await api.getUser(driver.id)
       const kyc = await api.getKYCByUserId(driver.id)
-      setViewingDriverKYC({ ...userDetails, ...driver, kyc })
+      setViewingDriverKYC({ ...(userDetails || {}), ...(driver || {}), kyc })
       setIsKYCModalOpen(true)
     } catch (err: any) {
       console.error('Failed to load KYC:', err)
       // Fallback to driver data we already have
       const kyc = await api.getKYCByUserId(driver.id).catch(() => null)
-      setViewingDriverKYC({ ...driver, kyc })
+      setViewingDriverKYC({ ...(driver || {}), kyc })
       setIsKYCModalOpen(true)
     }
   }
@@ -250,9 +250,9 @@ export default function DriversPage() {
         await api.updateUserStatus(viewingDriverKYC.id, 'active')
       }
       // Refresh the data
-      const userDetails = await api.getUser(viewingDriverKYC.id)
+      const userDetails: any = await api.getUser(viewingDriverKYC.id)
       const kyc = await api.getKYCByUserId(viewingDriverKYC.id)
-      setViewingDriverKYC({ ...userDetails, ...viewingDriverKYC, kyc })
+      setViewingDriverKYC({ ...(userDetails || {}), ...(viewingDriverKYC || {}), kyc })
       setKycStatusUpdate('')
       setKycRejectionReason('')
       await loadDrivers()
@@ -266,9 +266,9 @@ export default function DriversPage() {
     try {
       await api.updateUserStatus(viewingDriverKYC.id, userStatusUpdate)
       // Reload user and KYC data to reflect changes
-      const userDetails = await api.getUser(viewingDriverKYC.id)
+      const userDetails: any = await api.getUser(viewingDriverKYC.id)
       const kyc = await api.getKYCByUserId(viewingDriverKYC.id)
-      setViewingDriverKYC({ ...userDetails, kyc })
+      setViewingDriverKYC({ ...(userDetails || {}), kyc })
       setUserStatusUpdate('')
       await loadDrivers()
     } catch (err: any) {

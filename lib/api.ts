@@ -239,10 +239,6 @@ class ApiClient {
     });
   }
 
-  async calculateFare(distanceInMiles: number, durationInMinutes: number) {
-    const queryString = `?distance=${distanceInMiles}&duration=${durationInMinutes}`;
-    return this.request(`/rides/calculate-fare${queryString}`);
-  }
 
   async counterOfferRide(rideId: string, counterOffer: number) {
     return this.acceptRide(rideId, counterOffer);
@@ -369,17 +365,6 @@ class ApiClient {
     });
   }
 
-  // Message endpoints
-  async sendMessage(data: {
-    receiverId: string;
-    content: string;
-    rideId?: string;
-  }) {
-    return this.request('/messages', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
 
   async getConversation(userId: string, rideId?: string) {
     const queryString = rideId ? `?rideId=${rideId}` : '';
@@ -559,12 +544,12 @@ class ApiClient {
   }
 
   async calculateFare(distanceInMiles: number, durationInMinutes: number) {
-    const settings = await this.getSettings();
+    const settings: any = await this.getSettings();
     const baseFare =
-      distanceInMiles * parseFloat(String(settings.baseRatePerMile || 1.5)) +
-      durationInMinutes * parseFloat(String(settings.baseRatePerMinute || 0.3));
-    const finalFare = Math.max(baseFare, parseFloat(String(settings.minimumFare || 5)));
-    const platformFee = (finalFare * parseFloat(String(settings.platformFeePercent || 20))) / 100;
+      distanceInMiles * parseFloat(String(settings?.baseRatePerMile || 1.5)) +
+      durationInMinutes * parseFloat(String(settings?.baseRatePerMinute || 0.3));
+    const finalFare = Math.max(baseFare, parseFloat(String(settings?.minimumFare || 5)));
+    const platformFee = (finalFare * parseFloat(String(settings?.platformFeePercent || 20))) / 100;
     const driverEarning = finalFare - platformFee;
 
     return {

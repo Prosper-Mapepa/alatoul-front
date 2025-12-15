@@ -61,7 +61,7 @@ export default function KYCPage() {
     mobileMoneyProvider: '',
   })
 
-  const [files, setFiles] = useState({
+  const [files, setFiles] = useState<any>({
     idFront: null as File | null,
     idBack: null as File | null,
     licenseFront: null as File | null,
@@ -80,12 +80,12 @@ export default function KYCPage() {
 
   const loadUserData = async () => {
     try {
-      const user = await api.getCurrentUser()
+      const user: any = await api.getCurrentUser()
       if (user) {
-        const userData = {
-          name: user.name || '',
-          email: user.email || '',
-          phone: user.phone || '',
+        const userData: any = {
+          name: (user as any).name || '',
+          email: (user as any).email || '',
+          phone: (user as any).phone || '',
         }
         setUserInfo(userData)
 
@@ -111,9 +111,9 @@ export default function KYCPage() {
   const loadKYCData = async () => {
     try {
       // First, load user data to prepopulate
-      const user = await api.getCurrentUser()
+      const user: any = await api.getCurrentUser()
       if (user) {
-        const userData = {
+        const userData: any = {
           name: user.name || '',
           email: user.email || '',
           phone: user.phone || '',
@@ -135,7 +135,7 @@ export default function KYCPage() {
       }
 
       // Then, try to load existing KYC data
-      const kycData = await api.getKYC()
+      const kycData: any = await api.getKYC()
       if (kycData) {
         // Populate form with existing KYC data (overrides user data if present)
         setFormData(prev => ({
@@ -326,10 +326,10 @@ export default function KYCPage() {
       // Redirect to dashboard after successful KYC
       // Get current user to check role
       try {
-        const currentUser = await api.getCurrentUser()
-        if (currentUser.role === 'admin') {
+        const currentUser: any = await api.getCurrentUser()
+        if (currentUser?.role === 'admin') {
           router.push('/admin')
-        } else if (accountType === 'driver' || currentUser.role === 'driver') {
+        } else if (accountType === 'driver' || currentUser?.role === 'driver') {
           router.push('/driver')
         } else {
           router.push('/dashboard')

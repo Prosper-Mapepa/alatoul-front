@@ -131,15 +131,15 @@ export default function PassengersPage() {
   const handleViewKYC = async (passenger: any) => {
     try {
       // Get full user details to ensure we have avatar
-      const userDetails = await api.getUser(passenger.id)
+      const userDetails: any = await api.getUser(passenger.id)
       const kyc = await api.getKYCByUserId(passenger.id)
-      setViewingKYC({ ...userDetails, ...passenger, kyc })
+      setViewingKYC({ ...(userDetails || {}), ...(passenger || {}), kyc })
       setIsKYCModalOpen(true)
     } catch (err: any) {
       console.error('Failed to load KYC:', err)
       // Fallback to passenger data we already have
       const kyc = await api.getKYCByUserId(passenger.id).catch(() => null)
-      setViewingKYC({ ...passenger, kyc })
+      setViewingKYC({ ...(passenger || {}), kyc })
       setIsKYCModalOpen(true)
     }
   }
@@ -189,9 +189,9 @@ export default function PassengersPage() {
         await api.updateUserStatus(viewingKYC.id, 'active')
       }
       // Refresh the data
-      const userDetails = await api.getUser(viewingKYC.id)
+      const userDetails: any = await api.getUser(viewingKYC.id)
       const kyc = await api.getKYCByUserId(viewingKYC.id)
-      setViewingKYC({ ...userDetails, ...viewingKYC, kyc })
+      setViewingKYC({ ...(userDetails || {}), ...(viewingKYC || {}), kyc })
       setKycStatusUpdate('')
       setKycRejectionReason('')
       await loadPassengers()
@@ -205,9 +205,9 @@ export default function PassengersPage() {
     try {
       await api.updateUserStatus(viewingKYC.id, userStatusUpdate)
       // Reload user and KYC data to reflect changes
-      const userDetails = await api.getUser(viewingKYC.id)
+      const userDetails: any = await api.getUser(viewingKYC.id)
       const kyc = await api.getKYCByUserId(viewingKYC.id)
-      setViewingKYC({ ...userDetails, kyc })
+      setViewingKYC({ ...(userDetails || {}), kyc })
       setUserStatusUpdate('')
       await loadPassengers()
     } catch (err: any) {

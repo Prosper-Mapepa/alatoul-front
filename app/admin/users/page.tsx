@@ -99,7 +99,7 @@ export default function UsersPage() {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          role: formData.role,
+          role: formData.role === 'admin' ? 'passenger' : formData.role as 'passenger' | 'driver',
           password: formData.password,
         })
         // After creating, update status if needed

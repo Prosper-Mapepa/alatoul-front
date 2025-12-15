@@ -56,19 +56,20 @@ export default function SettingsPage() {
       setError('')
       const settings = await api.getSettings()
       
+      const settingsData: any = settings
       setGeneralSettings({
-        platformName: settings.platformName || 'Alatoul',
-        supportEmail: settings.supportEmail || 'support@alatoul.com',
-        supportPhone: settings.supportPhone || '+1 (555) 123-4567',
-        timezone: settings.timezone || 'UTC-5 (Eastern Time)',
-        defaultLanguage: settings.defaultLanguage === 'en' ? 'English' : settings.defaultLanguage || 'English',
+        platformName: settingsData?.platformName || 'Alatoul',
+        supportEmail: settingsData?.supportEmail || 'support@alatoul.com',
+        supportPhone: settingsData?.supportPhone || '+1 (555) 123-4567',
+        timezone: settingsData?.timezone || 'UTC-5 (Eastern Time)',
+        defaultLanguage: settingsData?.defaultLanguage === 'en' ? 'English' : settingsData?.defaultLanguage || 'English',
       })
 
       setPricingSettings({
-        platformFeePercent: parseFloat(String(settings.platformFeePercent || 20)),
-        minimumFare: parseFloat(String(settings.minimumFare || 5)),
-        baseRatePerMile: parseFloat(String(settings.baseRatePerMile || 1.5)),
-        baseRatePerMinute: parseFloat(String(settings.baseRatePerMinute || 0.3)),
+        platformFeePercent: parseFloat(String(settingsData?.platformFeePercent || 20)),
+        minimumFare: parseFloat(String(settingsData?.minimumFare || 5)),
+        baseRatePerMile: parseFloat(String(settingsData?.baseRatePerMile || 1.5)),
+        baseRatePerMinute: parseFloat(String(settingsData?.baseRatePerMinute || 0.3)),
       })
     } catch (err: any) {
       console.error('Failed to load settings:', err)

@@ -318,11 +318,11 @@ export function MessageModal({
                             <div className="ml-1 flex items-center">
                               {message.isRead ? (
                                 <div className="flex items-center -space-x-1">
-                                  <CheckCircle2 className="w-3 h-3 text-gray-700" title="Read" />
-                                  <CheckCircle2 className="w-3 h-3 text-gray-700" title="Read" />
+                                  <CheckCircle2 className="w-3 h-3 text-gray-700" />
+                                  <CheckCircle2 className="w-3 h-3 text-gray-700" />
                                 </div>
                               ) : (
-                                <CheckCircle2 className="w-3 h-3 text-gray-700" title="Sent" />
+                                <CheckCircle2 className="w-3 h-3 text-gray-700"  />
                               )}
                             </div>
                           )}

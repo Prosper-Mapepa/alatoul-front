@@ -101,10 +101,10 @@ export const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
       return
     }
 
-    const pickupLat = typeof pickupLocation.lat === 'function' ? pickupLocation.lat() : Number(pickupLocation.lat)
-    const pickupLng = typeof pickupLocation.lng === 'function' ? pickupLocation.lng() : Number(pickupLocation.lng)
-    const destLat = typeof destinationLocation.lat === 'function' ? destinationLocation.lat() : Number(destinationLocation.lat)
-    const destLng = typeof destinationLocation.lng === 'function' ? destinationLocation.lng() : Number(destinationLocation.lng)
+    const pickupLat = typeof (pickupLocation as any).lat === 'function' ? (pickupLocation as any).lat() : Number((pickupLocation as any).lat)
+    const pickupLng = typeof (pickupLocation as any).lng === 'function' ? (pickupLocation as any).lng() : Number((pickupLocation as any).lng)
+    const destLat = typeof (destinationLocation as any).lat === 'function' ? (destinationLocation as any).lat() : Number((destinationLocation as any).lat)
+    const destLng = typeof (destinationLocation as any).lng === 'function' ? (destinationLocation as any).lng() : Number((destinationLocation as any).lng)
 
     if (isNaN(pickupLat) || isNaN(pickupLng) || isNaN(destLat) || isNaN(destLng)) {
       const errorMsg = `Invalid location coordinates: pickup(${pickupLat}, ${pickupLng}), dest(${destLat}, ${destLng})`
@@ -259,8 +259,8 @@ export const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
 
     try {
       // Validate driver location coordinates first
-      const driverLat = typeof driverLocation.lat === 'function' ? driverLocation.lat() : Number(driverLocation.lat)
-      const driverLng = typeof driverLocation.lng === 'function' ? driverLocation.lng() : Number(driverLocation.lng)
+      const driverLat = typeof (driverLocation as any).lat === 'function' ? (driverLocation as any).lat() : Number((driverLocation as any).lat)
+      const driverLng = typeof (driverLocation as any).lng === 'function' ? (driverLocation as any).lng() : Number((driverLocation as any).lng)
       
       if (isNaN(driverLat) || isNaN(driverLng) || driverLat === 0 || driverLng === 0) {
         console.error('Invalid driver location coordinates:', driverLocation)
@@ -370,18 +370,18 @@ export const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
         const bounds = new window.google.maps.LatLngBounds()
         
         // Convert coordinates to LatLng objects
-        const pickupLat = typeof pickupLocation.lat === 'function' ? pickupLocation.lat() : Number(pickupLocation.lat)
-        const pickupLng = typeof pickupLocation.lng === 'function' ? pickupLocation.lng() : Number(pickupLocation.lng)
-        const destLat = typeof destinationLocation.lat === 'function' ? destinationLocation.lat() : Number(destinationLocation.lat)
-        const destLng = typeof destinationLocation.lng === 'function' ? destinationLocation.lng() : Number(destinationLocation.lng)
+        const pickupLat = typeof (pickupLocation as any).lat === 'function' ? (pickupLocation as any).lat() : Number((pickupLocation as any).lat)
+        const pickupLng = typeof (pickupLocation as any).lng === 'function' ? (pickupLocation as any).lng() : Number((pickupLocation as any).lng)
+        const destLat = typeof (destinationLocation as any).lat === 'function' ? (destinationLocation as any).lat() : Number((destinationLocation as any).lat)
+        const destLng = typeof (destinationLocation as any).lng === 'function' ? (destinationLocation as any).lng() : Number((destinationLocation as any).lng)
         
         bounds.extend(new window.google.maps.LatLng(pickupLat, pickupLng))
         bounds.extend(new window.google.maps.LatLng(destLat, destLng))
         bounds.extend(driverPos)
         
         if (passengerLocation) {
-          const passLat = typeof passengerLocation.lat === 'function' ? passengerLocation.lat() : Number(passengerLocation.lat)
-          const passLng = typeof passengerLocation.lng === 'function' ? passengerLocation.lng() : Number(passengerLocation.lng)
+          const passLat = typeof (passengerLocation as any).lat === 'function' ? (passengerLocation as any).lat() : Number((passengerLocation as any).lat)
+          const passLng = typeof (passengerLocation as any).lng === 'function' ? (passengerLocation as any).lng() : Number((passengerLocation as any).lng)
           if (!isNaN(passLat) && !isNaN(passLng)) {
             bounds.extend(new window.google.maps.LatLng(passLat, passLng))
           }
@@ -431,10 +431,10 @@ export const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
         const bounds = new window.google.maps.LatLngBounds()
         
         // Convert coordinates to LatLng objects
-        const pickupLat = typeof pickupLocation.lat === 'function' ? pickupLocation.lat() : Number(pickupLocation.lat)
-        const pickupLng = typeof pickupLocation.lng === 'function' ? pickupLocation.lng() : Number(pickupLocation.lng)
-        const destLat = typeof destinationLocation.lat === 'function' ? destinationLocation.lat() : Number(destinationLocation.lat)
-        const destLng = typeof destinationLocation.lng === 'function' ? destinationLocation.lng() : Number(destinationLocation.lng)
+        const pickupLat = typeof (pickupLocation as any).lat === 'function' ? (pickupLocation as any).lat() : Number((pickupLocation as any).lat)
+        const pickupLng = typeof (pickupLocation as any).lng === 'function' ? (pickupLocation as any).lng() : Number((pickupLocation as any).lng)
+        const destLat = typeof (destinationLocation as any).lat === 'function' ? (destinationLocation as any).lat() : Number((destinationLocation as any).lat)
+        const destLng = typeof (destinationLocation as any).lng === 'function' ? (destinationLocation as any).lng() : Number((destinationLocation as any).lng)
         
         bounds.extend(new window.google.maps.LatLng(pickupLat, pickupLng))
         bounds.extend(new window.google.maps.LatLng(destLat, destLng))
