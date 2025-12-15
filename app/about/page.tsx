@@ -23,7 +23,7 @@ export default function AboutPage() {
           <CardContent className="p-8">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Our Mission</h2>
             <p className="text-base text-gray-700 mb-4 leading-relaxed">
-              Alatoul is an innovative ride-hailing and mobility platform designed to operate "all the time" — 
+              Alatoul is an innovative ride-hailing and mobility platform designed to operate &quot;all the time&quot; — 
               offering fast, flexible, and affordable transportation similar to InDrive, but enhanced with 
               greater transparency, safety, and user control.
             </p>
