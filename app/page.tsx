@@ -128,7 +128,7 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center justify-center bg-white" style={{ overflow: 'visible', marginTop: '-80px', paddingTop: '80px' }}>
         {/* Background Image */}
         <div className="absolute top-0 left-0 w-full h-full z-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full" style={{ position: 'relative' }}>
+          <div className="relative w-full h-full">
             <Image
               src="/assets/c.jpg"
               alt="Banner background"
