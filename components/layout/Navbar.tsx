@@ -245,10 +245,10 @@ export const Navbar: React.FC = () => {
           isHomePage
             ? 'border-t border-white/20 bg-white/10 backdrop-blur-md'
             : 'border-t-[0.5px] border-gray-200 bg-white',
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+          isOpen ? 'max-h-96 opacity-100 visible' : 'max-h-0 opacity-0 invisible overflow-hidden pointer-events-none'
         )}
       >
-        <div className="px-4 py-6 space-y-3">
+        <div className="px-4 py-6 space-y-3 flex flex-col">
           <Link
             href="/"
             className={cn(
