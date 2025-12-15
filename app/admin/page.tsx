@@ -46,21 +46,21 @@ export default function AdminDashboard() {
       let rideStats: any = null
 
       try {
-        usersData = await api.getAllUsers({ limit: 1000 })
+        usersData = await api.getAllUsers({ limit: 1000 }) as any
       } catch (err: any) {
         console.error('Failed to load users:', err)
         // Continue with empty array
       }
 
       try {
-        driversData = await api.getAllUsers({ role: 'driver', limit: 1000 })
+        driversData = await api.getAllUsers({ role: 'driver', limit: 1000 }) as any
       } catch (err: any) {
         console.error('Failed to load drivers:', err)
         // Continue with empty array
       }
 
       try {
-        ridesData = await api.getAllRides({ limit: 1000 })
+        ridesData = await api.getAllRides({ limit: 1000 }) as any
       } catch (err: any) {
         console.error('Failed to load rides:', err)
         // Continue with empty array

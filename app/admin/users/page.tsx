@@ -38,7 +38,7 @@ export default function UsersPage() {
       if (filterStatus !== 'all') {
         params.status = filterStatus
       }
-      const response = await api.getAllUsers(params)
+      const response: any = await api.getAllUsers(params)
       const usersList = Array.isArray(response) ? response : (response?.users || response?.data || [])
       setUsers(usersList)
     } catch (err: any) {
@@ -105,7 +105,7 @@ export default function UsersPage() {
         // After creating, update status if needed
         if (formData.status !== 'pending') {
           // Get the created user and update status
-          const users = await api.getAllUsers({ limit: 1000 })
+          const users: any = await api.getAllUsers({ limit: 1000 })
           const usersList = Array.isArray(users) ? users : (users?.users || users?.data || [])
           const createdUser = usersList.find((u: any) => u.email === formData.email)
           if (createdUser && formData.status !== createdUser.status) {

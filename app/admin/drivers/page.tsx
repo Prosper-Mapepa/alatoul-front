@@ -71,7 +71,7 @@ export default function DriversPage() {
       if (filterStatus !== 'all') {
         params.status = filterStatus
       }
-      const response = await api.getAllUsers(params)
+      const response: any = await api.getAllUsers(params)
       const driversList = Array.isArray(response) ? response : (response?.users || response?.data || [])
       setDrivers(driversList)
 

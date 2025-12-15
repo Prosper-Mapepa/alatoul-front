@@ -24,7 +24,7 @@ export default function PaymentsPage() {
       setError('')
       // Note: Payments endpoint might be user-specific
       // For admin, we might need a separate endpoint or fetch all users' payments
-      const response = await api.getAllPayments({ limit: 1000 })
+      const response: any = await api.getAllPayments({ limit: 1000 })
       const paymentsList = Array.isArray(response) ? response : (response?.payments || response?.data || [])
       setPayments(paymentsList)
     } catch (err: any) {

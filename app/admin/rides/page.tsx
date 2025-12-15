@@ -29,7 +29,7 @@ export default function RidesPage() {
       if (filterStatus !== 'all') {
         params.status = filterStatus
       }
-      const response = await api.getAllRides(params)
+      const response: any = await api.getAllRides(params)
       const ridesList = Array.isArray(response) ? response : (response?.rides || response?.data || [])
       setRides(ridesList)
     } catch (err: any) {

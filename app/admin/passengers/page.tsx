@@ -50,7 +50,7 @@ export default function PassengersPage() {
       if (filterStatus !== 'all') {
         params.status = filterStatus
       }
-      const response = await api.getAllUsers(params)
+      const response: any = await api.getAllUsers(params)
       const passengersList = Array.isArray(response) ? response : (response?.users || response?.data || [])
       setPassengers(passengersList)
 
