@@ -192,7 +192,7 @@ export default function Home() {
         <div className="absolute top-24 sm:top-28 left-4 sm:left-6 lg:left-8 z-10 max-w-2xl">
           <div className="text-left">
             {/* Animated Text */}
-            {/* <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-12 mt-12 leading-tight animate-slide-up whitespace-nowrap">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-8 mt-12 leading-tight animate-slide-up whitespace-nowrap">
               <span 
                 className="rotating-text inline-block"
                 style={{
@@ -220,7 +220,7 @@ export default function Home() {
                   filter: 'drop-shadow(0 0 15px rgba(193, 241, 29, 0.5)) drop-shadow(0 0 30px rgba(193, 241, 29, 0.3))',
                 }}
               />
-            </h1> */}
+            </h1>
             
             {/* Description */}
             <p className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-8 sm:mb-12 font-semibold leading-tight" style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.6)' }}>
@@ -237,7 +237,7 @@ export default function Home() {
                   size="lg" 
                   className="group w-auto px-8 py-5 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                  Book a Ride 
+                  Book a Ride Now
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
@@ -263,7 +263,7 @@ export default function Home() {
                 size="lg" 
                 className="group w-full px-4 py-4 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Book a Ride Now
+                Book a Ride
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
