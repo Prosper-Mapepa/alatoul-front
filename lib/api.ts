@@ -57,17 +57,9 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    // Add cache-busting parameter for GET requests to avoid 304 responses
-    let url = `${this.baseURL}${endpoint}`;
-    if (options.method === 'GET' || !options.method) {
-      const separator = url.includes('?') ? '&' : '?';
-      url = `${url}${separator}_t=${Date.now()}`;
-    }
-    
+    const url = `${this.baseURL}${endpoint}`;
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
       ...(options.headers as Record<string, string>),
     };
 
@@ -79,7 +71,6 @@ class ApiClient {
       const response = await fetch(url, {
         ...options,
         headers,
-        cache: 'no-store', // Force fresh data
       });
 
       if (!response.ok) {

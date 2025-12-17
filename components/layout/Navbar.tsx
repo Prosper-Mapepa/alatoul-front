@@ -258,8 +258,8 @@ export const Navbar: React.FC = () => {
                   ? "text-white font-semibold" 
                   : "text-white/95 hover:text-white"
                 : pathname === '/' 
-                  ? "text-gray-900 font-semibold" 
-                  : "text-gray-700 hover:text-gray-900"
+                ? "text-gray-900 font-semibold" 
+                : "text-gray-700 hover:text-gray-900"
             )}
             onClick={() => setIsOpen(false)}
             style={isHomePage ? { 
@@ -275,7 +275,7 @@ export const Navbar: React.FC = () => {
               isHomePage
                 ? "text-white/95 hover:text-white"
                 : (pathname === '/about' 
-                  ? "text-gray-900 font-semibold" 
+                ? "text-gray-900 font-semibold" 
                   : "text-gray-700 hover:text-gray-900")
             )}
             onClick={() => setIsOpen(false)}
@@ -292,7 +292,7 @@ export const Navbar: React.FC = () => {
               isHomePage
                 ? "text-white/95 hover:text-white"
                 : (pathname === '/safety' 
-                  ? "text-gray-900 font-semibold" 
+                ? "text-gray-900 font-semibold" 
                   : "text-gray-700 hover:text-gray-900")
             )}
             onClick={() => setIsOpen(false)}
