@@ -176,21 +176,13 @@ export default function DashboardPage() {
     // Load user data and check access
     checkAccess()
     
-    // Also check immediately if user is already verified (in case of cached data)
-    const quickCheck = async () => {
-      try {
-        const user = (await api.getCurrentUser()) as any
-        if (user.status === 'active') {
-          // User is already verified, reload to show dashboard
-          window.location.reload()
-        }
-      } catch (err) {
-        // Ignore errors in quick check
-      }
-    }
+    // Safety timeout: ensure loading state is cleared after 10 seconds
+    const timeout = setTimeout(() => {
+      console.warn('Loading timeout reached, clearing loading state')
+      setIsCheckingAccess(false)
+    }, 10000)
     
-    // Run quick check after a short delay to allow initial checkAccess to complete
-    setTimeout(quickCheck, 1000)
+    return () => clearTimeout(timeout)
   }, [])
 
   // Poll for new notifications every 30 seconds
@@ -273,10 +265,14 @@ export default function DashboardPage() {
       // If status is active, user is verified - proceed to dashboard
       if (user.status === 'active') {
         // User is approved, load dashboard data
-        loadUserData()
-        loadRides()
-        loadNotifications()
-        setIsCheckingAccess(false)
+        // Load data asynchronously but don't block on errors
+        Promise.allSettled([
+          loadUserData(),
+          loadRides(),
+          loadNotifications()
+        ]).finally(() => {
+          setIsCheckingAccess(false)
+        })
         return
       }
 
@@ -329,10 +325,14 @@ export default function DashboardPage() {
       }
 
       // User is approved, load dashboard data
-      loadUserData()
-      loadRides()
-      loadNotifications()
-      setIsCheckingAccess(false)
+      // Load data asynchronously but don't block on errors
+      Promise.allSettled([
+        loadUserData(),
+        loadRides(),
+        loadNotifications()
+      ]).finally(() => {
+        setIsCheckingAccess(false)
+      })
     } catch (err) {
       console.error('Failed to check access:', err)
       setIsCheckingAccess(false)
