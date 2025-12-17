@@ -175,6 +175,22 @@ export default function DashboardPage() {
   useEffect(() => {
     // Load user data and check access
     checkAccess()
+    
+    // Also check immediately if user is already verified (in case of cached data)
+    const quickCheck = async () => {
+      try {
+        const user = (await api.getCurrentUser()) as any
+        if (user.status === 'active') {
+          // User is already verified, reload to show dashboard
+          window.location.reload()
+        }
+      } catch (err) {
+        // Ignore errors in quick check
+      }
+    }
+    
+    // Run quick check after a short delay to allow initial checkAccess to complete
+    setTimeout(quickCheck, 1000)
   }, [])
 
   // Poll for new notifications every 30 seconds
@@ -267,9 +283,16 @@ export default function DashboardPage() {
       // If status is pending or verified but KYC not approved, show waiting screen and poll for updates
       if (user.status === 'pending' || (user.status === 'verified' && kyc && kyc.status !== 'approved')) {
         setIsCheckingAccess(false)
+        
+        // Store polling interval in a ref to avoid multiple intervals
+        let pollCount = 0
+        const maxPolls = 20 // Poll for up to 60 seconds (20 * 3 seconds)
+        
         // Poll for verification status updates every 3 seconds
         const pollInterval = setInterval(async () => {
+          pollCount++
           try {
+            // Force fresh data by adding cache-busting parameter
             const updatedUser = (await api.getCurrentUser()) as any
             let updatedKyc: any = null
             try {
@@ -278,21 +301,29 @@ export default function DashboardPage() {
               // KYC might not exist yet
             }
             
+            console.log('Polling verification status:', {
+              userStatus: updatedUser.status,
+              kycStatus: updatedKyc?.status,
+              pollCount
+            })
+            
             // If user is now active or verified with approved KYC, reload
             if (updatedUser.status === 'active' || 
                 (updatedUser.status === 'verified' && updatedKyc && updatedKyc.status === 'approved')) {
               clearInterval(pollInterval)
+              console.log('Verification complete, reloading...')
               window.location.reload()
+            }
+            
+            // Stop polling after max attempts
+            if (pollCount >= maxPolls) {
+              clearInterval(pollInterval)
+              console.log('Polling timeout reached')
             }
           } catch (err) {
             console.error('Failed to poll verification status:', err)
           }
         }, 3000)
-        
-        // Clear polling after 60 seconds to prevent infinite polling
-        setTimeout(() => {
-          clearInterval(pollInterval)
-        }, 60000)
         
         return
       }
@@ -1084,8 +1115,14 @@ export default function DashboardPage() {
         />
       )
     }
-    // Show waiting screen if pending or verified but KYC not approved
+    // Show waiting screen only if pending or verified but KYC not approved
     // Note: active status means verified, so we don't show waiting screen for active users
+    // Also, if verified with approved KYC, proceed to dashboard
+    if (currentUser.status === 'active') {
+      // User is active/verified, proceed to dashboard (don't show waiting screen)
+      return null
+    }
+    
     if (currentUser.status === 'pending' || 
         (currentUser.status === 'verified' && kycData && kycData.status !== 'approved')) {
       return (
