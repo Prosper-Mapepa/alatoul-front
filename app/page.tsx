@@ -82,30 +82,25 @@ export default function Home() {
   // Handle audio playback
   useEffect(() => {
     if (audioRef) {
-      // Try to play audio by default
-      const playPromise = audioRef.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsMusicPlaying(true)
-          })
-          .catch((error) => {
-            // Autoplay was prevented - user interaction required
-            console.log('Audio autoplay prevented:', error)
-            setIsMusicPlaying(false)
-          })
-      }
-      
-      // Listen to play/pause events
+      // Audio is muted by default, so we don't autoplay
+      // Listen to play/pause and muted events
       const handlePlay = () => setIsMusicPlaying(true)
       const handlePause = () => setIsMusicPlaying(false)
+      const handleVolumeChange = () => {
+        setIsMusicPlaying(!audioRef.muted && !audioRef.paused)
+      }
       
       audioRef.addEventListener('play', handlePlay)
       audioRef.addEventListener('pause', handlePause)
+      audioRef.addEventListener('volumechange', handleVolumeChange)
+      
+      // Set initial state based on muted status
+      setIsMusicPlaying(!audioRef.muted && !audioRef.paused)
       
       return () => {
         audioRef.removeEventListener('play', handlePlay)
         audioRef.removeEventListener('pause', handlePause)
+        audioRef.removeEventListener('volumechange', handleVolumeChange)
       }
     }
   }, [audioRef])
@@ -113,8 +108,12 @@ export default function Home() {
   const toggleMusic = () => {
     if (audioRef) {
       if (isMusicPlaying) {
+        // Mute and pause
+        audioRef.muted = true
         audioRef.pause()
       } else {
+        // Unmute and play
+        audioRef.muted = false
         audioRef.play().catch((error) => {
           console.log('Error playing audio:', error)
         })
@@ -145,7 +144,7 @@ export default function Home() {
             ref={(el) => setAudioRef(el)}
             src="/assets/audio.mp3"
             loop
-            autoPlay
+            muted
             preload="auto"
             className="hidden"
           />
@@ -189,11 +188,11 @@ export default function Home() {
           )}
         </button>
         
-        {/* Content Section - Top Left of Banner */}
+        {/* Content Section - Top Left of Banner on Desktop, Bottom on Mobile */}
         <div className="absolute top-24 sm:top-28 left-4 sm:left-6 lg:left-8 z-10 max-w-2xl">
           <div className="text-left">
             {/* Animated Text */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-12 mt-12 leading-tight animate-slide-up whitespace-nowrap">
+            {/* <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-12 mt-12 leading-tight animate-slide-up whitespace-nowrap">
               <span 
                 className="rotating-text inline-block"
                 style={{
@@ -221,20 +220,22 @@ export default function Home() {
                   filter: 'drop-shadow(0 0 15px rgba(193, 241, 29, 0.5)) drop-shadow(0 0 30px rgba(193, 241, 29, 0.3))',
                 }}
               />
-            </h1>
+            </h1> */}
             
             {/* Description */}
-            <p className="text-lg sm:text-xl md:text-3xl lg:text-4xl text-white mb-12 font-light leading-relaxed" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>
-              Transportation available all the time. Propose your fare, choose your driver, and go.
+            <p className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-8 sm:mb-12 font-semibold leading-tight" style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.6)' }}>
+              <span className="block">Transportation</span>
+              <span className="block text-primary-300">available all the time.</span>
+              <span className="block mt-4 text-xl sm:text-xl md:text-2xl font-normal opacity-95">Propose your fare. Choose your driver. Go.</span>
             </p>
             
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-start items-start ">
+            {/* Buttons - Hidden on mobile, shown at bottom */}
+            <div className="hidden sm:flex flex-row gap-4 justify-start items-start">
               <Link href="/register">
                 <Button 
                   variant="primary" 
                   size="lg" 
-                  className="group w-full sm:w-auto px-8 py-5 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="group w-auto px-8 py-5 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   Book a Ride Now
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -244,12 +245,37 @@ export default function Home() {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="group w-full sm:w-auto px-8 py-5 text-lg font-semibold border-2 border-white/60 text-white hover:bg-white/10 hover:border-primary-500 transition-all duration-300"
+                  className="group w-auto px-11 py-5 text-lg font-semibold border-2 border-white/60 text-white hover:bg-white/10 hover:border-primary-500 transition-all duration-300"
                 >
                   Become a Driver
                 </Button>
               </Link>
             </div>
+          </div>
+        </div>
+
+        {/* Mobile Buttons - Fixed at Bottom */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden p-4 bg-gradient-to-t from-black/80 via-black/60 to-transparent backdrop-blur-md">
+          <div className="flex flex-row gap-3 max-w-md mx-auto">
+            <Link href="/register" className="flex-1">
+              <Button 
+                variant="primary" 
+                size="lg" 
+                className="group w-full px-4 py-4 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Book a Ride Now
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <Link href="/signin" className="flex-1">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="group w-full px-4 py-4 text-base font-semibold border-2 border-white/80 text-white hover:bg-white/20 hover:border-primary-500 transition-all duration-300 bg-white/10"
+              >
+                Become a Driver
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -263,7 +289,7 @@ export default function Home() {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary-100/30 to-transparent rounded-full blur-3xl"></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
+        <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
           <div className="text-center mb-20">
             <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-primary-100 to-primary-50 text-gray-900 font-bold text-sm mb-8 border border-primary-200/50 shadow-lg backdrop-blur-sm">
               ✨ Why Choose Alatoul?
@@ -333,7 +359,7 @@ export default function Home() {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-transparent via-primary-100/20 to-transparent rounded-full blur-3xl"></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
+        <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
           <div className="text-center mb-20">
             <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-primary-100 to-primary-50 text-gray-900 font-bold text-sm mb-8 border border-primary-200/50 shadow-lg backdrop-blur-sm">
               🚀 Simple Process
@@ -418,117 +444,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 sm:py-20 relative overflow-hidden" style={{
-        background: 'linear-gradient(135deg, #C1F11D 0%, #A8D919 50%, #8FC315 50%, #A8D919 75%, #C1F11D 100%)',
-        backgroundSize: '200% 200%',
-        animation: 'gradientShift 8s ease infinite'
-      }}>
-        {/* Animated Background Decorations */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Primary Animated Blobs */}
-          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-white/15 rounded-full blur-3xl animate-blob" style={{ animationDuration: '8s' }}></div>
-          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-white/12 rounded-full blur-3xl animate-blob animation-delay-2000" style={{ animationDuration: '10s' }}></div>
-          <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl animate-blob animation-delay-4000" style={{ animationDuration: '12s' }}></div>
-          
-          {/* Secondary Floating Elements */}
-          <div className="absolute top-1/3 right-1/3 w-[300px] h-[300px] bg-white/8 rounded-full blur-2xl" style={{
-            animation: 'float 6s ease-in-out infinite',
-            animationDelay: '1s'
-          }}></div>
-          <div className="absolute bottom-1/3 left-1/3 w-[350px] h-[350px] bg-white/8 rounded-full blur-2xl" style={{
-            animation: 'float 8s ease-in-out infinite',
-            animationDelay: '3s'
-          }}></div>
-          
-          {/* Central Glow Effect */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-r from-white/10 via-white/20 to-white/10 rounded-full blur-3xl" style={{
-            animation: 'pulseGlow 4s ease-in-out infinite'
-          }}></div>
-          
-          {/* Animated Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 via-transparent to-primary-500/20" style={{
-            backgroundSize: '200% 200%',
-            animation: 'gradientMove 6s ease infinite'
-          }}></div>
-          
-          {/* Grid Pattern Overlay */}
-          <div className="absolute inset-0 bg-grid-pattern opacity-15"></div>
-          
-          {/* Shimmer Effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" style={{
-            transform: 'translateX(-100%)',
-            animation: 'shimmer 5s ease-in-out infinite'
-          }}></div>
-        </div>
-
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-          {/* Headline */}
-          <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold mb-8 leading-tight">
-            <span className="block text-gray-900">Ready to  <span className="relative z-10 text-white drop-shadow-lg">
-                GO?
-              </span></span>
-          </h2>
-
-          {/* Description */}
-          <p className="text-xl sm:text-2xl md:text-3xl text-white/90 mb-16 max-w-3xl mx-auto leading-relaxed font-light drop-shadow-md">
-            Join thousands of riders and drivers already using Alatoul to experience
-            transportation like never before
-          </p>
-
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            <Link href="/ride" className="group">
-              <div className="relative">
-                {/* Button Glow */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 rounded-xl opacity-0 group-hover:opacity-75 blur-xl transition-opacity duration-500"></div>
-                
-                <Button 
-                  variant="primary" 
-                  size="lg" 
-                  className="relative group w-full sm:w-auto px-8 py-5 text-lg font-bold shadow-2xl hover:shadow-primary-500/50 transition-all duration-500 transform hover:scale-105 hover:-translate-y-1"
-                >
-                  <span className="relative z-10 flex items-center">
-                    Download App
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
-                  </span>
-                  
-                  {/* Shine Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-lg opacity-0 group-hover:opacity-100 animate-shine"></div>
-                </Button>
-              </div>
-            </Link>
-
-            <Link href="/driver" className="group">
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="relative w-full sm:w-auto px-8 py-5 text-lg font-bold border-2 border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white hover:text-primary-600 hover:border-white transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl"
-              >
-                <span className="relative z-10">Start Driving</span>
-                
-                {/* Hover Background */}
-                <div className="absolute inset-0 bg-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              </Button>
-            </Link>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-4 text-white">
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/30 shadow-lg">
-              <CheckCircle2 className="w-4 h-4 text-white" />
-              <span className="text-xs font-semibold">100K+ Rides</span>
-            </div>
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/30 shadow-lg">
-              <CheckCircle2 className="w-4 h-4 text-white" />
-              <span className="text-xs font-semibold">5,000+ Drivers</span>
-            </div>
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/30 shadow-lg">
-              <CheckCircle2 className="w-4 h-4 text-white" />
-              <span className="text-xs font-semibold">4.9★ Rating</span>
-            </div>
-          </div>
-        </div>
-      </section>
+     
     </div>
   )
 }

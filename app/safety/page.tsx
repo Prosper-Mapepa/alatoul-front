@@ -77,14 +77,14 @@ export default function SafetyPage() {
 
   return (
     <div className="min-h-screen bg-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="mb-12">
           {/* <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mb-6">
             <Shield className="w-10 h-10 text-white" />
           </div> */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-3">
-            Your Safety is Our Priority
+            Your Safety is Our Priority<span className="text-primary-500">.</span>
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-gray-600 max-w-3xl">
             We've built multiple layers of safety features to ensure you have a secure and
@@ -94,7 +94,7 @@ export default function SafetyPage() {
 
         {/* Safety Features */}
         <div className="mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8">Safety Features</h2>
+          {/* <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8">Safety Features</h2> */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {safetyFeatures.map((feature, index) => (
               <Card key={index} className="shadow-lg border border-gray-200 hover:border-primary-500 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white">
@@ -111,7 +111,7 @@ export default function SafetyPage() {
         </div>
 
         {/* Safety Tips */}
-        <div className="mb-12">
+        {/* <div className="mb-12">
           <Card className="shadow-lg border border-primary-200 bg-gradient-to-br from-primary-50 to-primary-100/50">
             <CardHeader className="pb-4 bg-gradient-to-r from-primary-50 to-transparent rounded-t-xl">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center">
@@ -135,10 +135,10 @@ export default function SafetyPage() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         {/* Emergency Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
           <Card className="shadow-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100/50">
             <CardContent className="p-8">
               <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
@@ -183,10 +183,10 @@ export default function SafetyPage() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         {/* Reporting Section */}
-        <Card className="shadow-lg border border-gray-200 bg-white">
+        {/* <Card className="shadow-lg border border-gray-200 bg-white">
           <CardHeader className="pb-4 bg-gradient-to-r from-primary-50 to-transparent rounded-t-xl">
             <CardTitle className="text-2xl font-bold text-gray-900">Report a Safety Concern</CardTitle>
           </CardHeader>
@@ -207,7 +207,7 @@ export default function SafetyPage() {
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   )

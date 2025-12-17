@@ -9,17 +9,17 @@ import Link from 'next/link'
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-3">About Alatoul</h1>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-3">About Alatoul<span className="text-primary-500">.</span></h1>
           <p className="text-lg sm:text-xl md:text-2xl text-gray-600">
             Transportation, Available All the Time
           </p>
         </div>
 
         {/* Mission Statement */}
-        <Card className="mb-12 shadow-lg border border-gray-200 bg-white">
+        {/* <Card className="mb-12 shadow-lg border border-gray-200 bg-white">
           <CardContent className="p-8">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">Our Mission</h2>
             <p className="text-base text-gray-700 mb-4 leading-relaxed">
@@ -33,11 +33,11 @@ export default function AboutPage() {
               system that benefits both sides.
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* What We Offer */}
         <div className="mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8">What We Offer</h2>
+          {/* <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8">What We Offer</h2> */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="shadow-lg border border-gray-200 hover:border-primary-500 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white">
               <CardContent className="p-6">
@@ -104,7 +104,7 @@ export default function AboutPage() {
         </div>
 
         {/* Values */}
-        <Card className="mb-12 shadow-lg border border-primary-200 bg-gradient-to-br from-primary-50 to-primary-100/50">
+        {/* <Card className="mb-12 shadow-lg border border-primary-200 bg-gradient-to-br from-primary-50 to-primary-100/50">
           <CardContent className="p-8">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8">Our Values</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -137,10 +137,10 @@ export default function AboutPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* CTA */}
-        <div>
+        {/* <div>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Join Us Today</h2>
           <p className="text-lg sm:text-xl md:text-2xl text-gray-600 mb-8">
             Whether you need a ride or want to drive, Alatoul makes transportation simple.
@@ -157,7 +157,7 @@ export default function AboutPage() {
               </Button>
             </Link>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )

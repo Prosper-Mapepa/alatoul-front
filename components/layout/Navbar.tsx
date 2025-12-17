@@ -53,7 +53,7 @@ export const Navbar: React.FC = () => {
           : "bg-white/95 backdrop-blur-sm border-b-[0.5px] border-gray-200 shadow-sm"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity group">
@@ -253,71 +253,75 @@ export const Navbar: React.FC = () => {
             href="/"
             className={cn(
               "block text-base font-medium py-2 transition-colors",
-              pathname === '/' 
-                ? "text-gray-900 font-semibold" 
-                : "text-gray-700 hover:text-gray-900"
+              isHomePage
+                ? pathname === '/' 
+                  ? "text-white font-semibold" 
+                  : "text-white/95 hover:text-white"
+                : pathname === '/' 
+                  ? "text-gray-900 font-semibold" 
+                  : "text-gray-700 hover:text-gray-900"
             )}
             onClick={() => setIsOpen(false)}
+            style={isHomePage ? { 
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+            } : {}}
           >
             Home
-          </Link>
-          <Link
-            href="/ride"
-            className={cn(
-              "block text-base font-medium py-2 transition-colors",
-              pathname === '/ride' 
-                ? "text-gray-900 font-semibold" 
-                : "text-gray-700 hover:text-gray-900"
-            )}
-            onClick={() => setIsOpen(false)}
-          >
-            Book Ride
-          </Link>
-          <Link
-            href="/driver"
-            className={cn(
-              "block text-base font-medium py-2 transition-colors",
-              pathname === '/driver' 
-                ? "text-gray-900 font-semibold" 
-                : "text-gray-700 hover:text-gray-900"
-            )}
-            onClick={() => setIsOpen(false)}
-          >
-            Drive
-          </Link>
-          <Link
-            href="/safety"
-            className={cn(
-              "block text-base font-medium py-2 transition-colors",
-              pathname === '/safety' 
-                ? "text-gray-900 font-semibold" 
-                : "text-gray-700 hover:text-gray-900"
-            )}
-            onClick={() => setIsOpen(false)}
-          >
-            Safety
           </Link>
           <Link
             href="/about"
             className={cn(
               "block text-base font-medium py-2 transition-colors",
-              pathname === '/about' 
-                ? "text-gray-900 font-semibold" 
-                : "text-gray-700 hover:text-gray-900"
+              isHomePage
+                ? "text-white/95 hover:text-white"
+                : (pathname === '/about' 
+                  ? "text-gray-900 font-semibold" 
+                  : "text-gray-700 hover:text-gray-900")
             )}
             onClick={() => setIsOpen(false)}
+            style={isHomePage ? { 
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+            } : {}}
           >
             About
           </Link>
-          <div className="pt-4 space-y-3 border-t-[0.5px] border-gray-200">
+          <Link
+            href="/safety"
+            className={cn(
+              "block text-base font-medium py-2 transition-colors",
+              isHomePage
+                ? "text-white/95 hover:text-white"
+                : (pathname === '/safety' 
+                  ? "text-gray-900 font-semibold" 
+                  : "text-gray-700 hover:text-gray-900")
+            )}
+            onClick={() => setIsOpen(false)}
+            style={isHomePage ? { 
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+            } : {}}
+          >
+            Safety
+          </Link>
+          <div className={cn(
+            "pt-4 space-y-3 border-t",
+            isHomePage ? "border-white/20" : "border-t-[0.5px] border-gray-200"
+          )}>
             {isLoggedIn ? (
               <>
                 <Link 
                   href={currentUser?.role === 'driver' ? '/driver' : currentUser?.role === 'admin' ? '/admin' : '/dashboard'}
-                  className="flex items-center space-x-2 text-base font-medium text-gray-700 hover:text-gray-900 py-2 transition-colors"
+                  className={cn(
+                    "flex items-center space-x-2 text-base font-medium py-2 transition-colors",
+                    isHomePage
+                      ? "text-white/95 hover:text-white"
+                      : "text-gray-700 hover:text-gray-900"
+                  )}
                   onClick={() => setIsOpen(false)}
+                  style={isHomePage ? { 
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                  } : {}}
                 >
-                  <User className="w-5 h-5" />
+                  <User className="w-5 h-5" style={isHomePage ? { filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))' } : {}} />
                   <span>{currentUser?.name || 'Dashboard'}</span>
                 </Link>
                 <Button 
@@ -327,7 +331,15 @@ export const Navbar: React.FC = () => {
                     handleLogout()
                     setIsOpen(false)
                   }}
-                  className="w-full font-semibold"
+                  className={cn(
+                    "w-full font-semibold transition-all",
+                    isHomePage 
+                      ? "bg-white/25 backdrop-blur-sm border-white/40 text-white hover:bg-white/35 shadow-lg border-2" 
+                      : ""
+                  )}
+                  style={isHomePage ? { 
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                  } : {}}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
@@ -337,14 +349,34 @@ export const Navbar: React.FC = () => {
               <>
                 <Link 
                   href="/signin" 
-                  className="flex items-center space-x-2 text-base font-medium text-gray-700 hover:text-gray-900 py-2 transition-colors"
+                  className={cn(
+                    "flex items-center space-x-2 text-base font-medium py-2 transition-colors",
+                    isHomePage
+                      ? "text-white/95 hover:text-white"
+                      : "text-gray-700 hover:text-gray-900"
+                  )}
                   onClick={() => setIsOpen(false)}
+                  style={isHomePage ? { 
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                  } : {}}
                 >
-                  <User className="w-5 h-5" />
+                  <User className="w-5 h-5" style={isHomePage ? { filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))' } : {}} />
                   <span>Sign In</span>
                 </Link>
                 <Link href="/register" className="block" onClick={() => setIsOpen(false)}>
-                  <Button variant="primary" size="md" className="w-full font-semibold border-[0.5px] border-primary-500">
+                  <Button 
+                    variant="primary" 
+                    size="md" 
+                    className={cn(
+                      "w-full font-semibold transition-all shadow-lg hover:shadow-xl",
+                      isHomePage
+                        ? "bg-primary-500 hover:bg-primary-600 text-black border-2 border-primary-400"
+                        : "border-[0.5px] border-primary-500"
+                    )}
+                    style={isHomePage ? { 
+                      filter: 'drop-shadow(0 2px 8px rgba(193, 241, 29, 0.3))'
+                    } : {}}
+                  >
                     Get Started
                   </Button>
                 </Link>
