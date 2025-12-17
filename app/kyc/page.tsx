@@ -349,67 +349,78 @@ export default function KYCPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+      <div className="max-w-4xl mx-auto w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Car className="w-9 h-9 text-gray-900" />
+        <div className="text-center mb-6 sm:mb-8">
+          <Link href="/" className="inline-flex items-center justify-center mb-4 sm:mb-6">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-500 rounded-2xl flex items-center justify-center shadow-lg">
+              <Car className="w-8 h-8 sm:w-9 sm:h-9 text-gray-900" />
             </div>
           </Link>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-3">
             Complete Your {accountType === 'driver' ? 'Driver' : 'Passenger'} Profile
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             Help us verify your identity and set up your {accountType === 'driver' ? 'driver' : 'passenger'} account
           </p>
         </div>
 
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {Array.from({ length: totalSteps }).map((_, index) => (
-              <div key={index} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                      index + 1 < currentStep
-                        ? 'bg-primary-500 text-gray-900'
-                        : index + 1 === currentStep
-                        ? 'bg-primary-500 text-gray-900'
-                        : 'bg-gray-200 text-gray-500'
-                    }`}
-                  >
-                    {index + 1 < currentStep ? (
-                      <CheckCircle2 className="w-6 h-6" />
-                    ) : (
-                      index + 1
-                    )}
-                  </div>
-                  <span className={`mt-2 text-xs font-medium ${
-                    index + 1 <= currentStep ? 'text-gray-900' : 'text-gray-500'
-                  }`}>
-                    {accountType === 'driver'
-                      ? ['Personal Info', 'ID Verification', 'License', 'Vehicle', 'Payment'][index]
-                      : ['Personal Info', 'ID Verification', 'Payment'][index]}
-                  </span>
-                </div>
-                {index < totalSteps - 1 && (
-                  <div
-                    className={`h-1 flex-1 mx-2 ${
-                      index + 1 < currentStep ? 'bg-primary-500' : 'bg-gray-200'
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* KYC Form */}
+        {/* KYC Form Container */}
         <Card className="border border-gray-200 shadow-lg">
-          <CardContent className="p-8">
+          {/* Progress Steps - Inside Card Header */}
+          <div className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-4 sm:pb-6 border-b border-gray-200">
+            <div className="relative w-full">
+              {/* Connecting Lines Background */}
+              <div className="absolute top-5 sm:top-6 left-0 right-0 h-1 bg-gray-200" style={{ marginLeft: '5%', marginRight: '5%', width: '90%' }}></div>
+              
+              {/* Active Progress Line */}
+              {currentStep > 1 && (
+                <div
+                  className="absolute top-5 sm:top-6 h-1 bg-primary-500 transition-all duration-300"
+                  style={{
+                    left: '5%',
+                    width: `${((currentStep - 1) / (totalSteps - 1)) * 90}%`,
+                  }}
+                ></div>
+              )}
+              
+              {/* Steps Container - Evenly Distributed */}
+              <div className="relative flex items-start justify-between w-full" style={{ paddingLeft: '5%', paddingRight: '5%' }}>
+                {Array.from({ length: totalSteps }).map((_, index) => (
+                  <div key={index} className="flex flex-col items-center flex-1">
+                    {/* Step Circle */}
+                    <div
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-semibold text-base sm:text-lg shrink-0 relative z-10 ${
+                        index + 1 < currentStep
+                          ? 'bg-primary-500 text-gray-900'
+                          : index + 1 === currentStep
+                          ? 'bg-primary-500 text-gray-900'
+                          : 'bg-gray-200 text-gray-500'
+                      }`}
+                    >
+                      {index + 1 < currentStep ? (
+                        <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7" />
+                      ) : (
+                        index + 1
+                      )}
+                    </div>
+                    
+                    {/* Step Label */}
+                    <span className={`mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center leading-tight ${
+                      index + 1 <= currentStep ? 'text-gray-900' : 'text-gray-500'
+                    }`}>
+                      {accountType === 'driver'
+                        ? ['Personal Info', 'ID Verification', 'License', 'Vehicle', 'Payment'][index]
+                        : ['Personal Info', 'ID Verification', 'Payment'][index]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <CardContent className="p-4 sm:p-6 lg:p-8">
             {error && (
               <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
@@ -420,47 +431,59 @@ export default function KYCPage() {
               {currentStep === 1 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Personal Information</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-5 sm:mb-6">Personal Information</h2>
                     
                     {/* Pre-filled info from registration */}
-                    {userInfo && (userInfo.email || userInfo.phone) && (
-                      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-sm font-medium text-blue-900 mb-3">
-                          Information from your registration:
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* {userInfo && (userInfo.email || userInfo.phone) && (
+                      <div className="mb-6 p-5 sm:p-6 bg-gradient-to-br from-primary-50 to-primary-100/50 border border-primary-200 rounded-xl shadow-sm w-full">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            Information from your registration
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                           {userInfo.email && (
-                            <div>
-                              <label className="block text-xs font-medium text-blue-700 mb-1">
+                            <div className="space-y-1.5">
+                              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
                                 Email Address
                               </label>
-                              <div className="text-sm text-blue-900 font-medium">
-                                {userInfo.email}
-                              </div>
+                              <input
+                                type="email"
+                                value={userInfo.email}
+                                disabled
+                                className="w-full text-sm text-gray-900 font-medium bg-white/80 px-3 py-2.5 rounded-lg border border-primary-200/50 cursor-not-allowed opacity-75"
+                              />
                             </div>
                           )}
                           {userInfo.phone && (
-                            <div>
-                              <label className="block text-xs font-medium text-blue-700 mb-1">
+                            <div className="space-y-1.5">
+                              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
                                 Phone Number
                               </label>
-                              <div className="text-sm text-blue-900 font-medium">
-                                {userInfo.phone}
-                              </div>
+                              <input
+                                type="tel"
+                                value={userInfo.phone}
+                                disabled
+                                className="w-full text-sm text-gray-900 font-medium bg-white/80 px-3 py-2.5 rounded-lg border border-primary-200/50 cursor-not-allowed opacity-75"
+                              />
                             </div>
                           )}
                         </div>
-                        <p className="text-xs text-blue-600 mt-3">
-                          This information is already verified from your registration.
-                        </p>
+                        <div className="mt-4 pt-4 border-t border-primary-200/50">
+                          <p className="text-xs text-gray-700 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-primary-600" />
+                            <span>This information is already verified from your registration</span>
+                          </p>
+                        </div>
                       </div>
-                    )}
+                    )} */}
                     
                     <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
-                        Profile Photo
+                      <label className="block text-base font-medium text-gray-700 mb-3">
+                        Profile Photo <span className="text-xs text-gray-500">(JPG, PNG up to 5MB)</span>
                       </label>
-                      <div className="flex items-center space-x-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
                         <input
                           type="file"
                           accept="image/*"
@@ -487,9 +510,9 @@ export default function KYCPage() {
                         />
                         <label 
                           htmlFor="profilePhoto" 
-                          className="cursor-pointer"
+                          className="cursor-pointer shrink-0"
                         >
-                          <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-primary-500 transition-colors">
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-primary-500 transition-colors">
                             {files.profilePhoto ? (
                               <img
                                 src={URL.createObjectURL(files.profilePhoto)}
@@ -497,16 +520,16 @@ export default function KYCPage() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <Camera className="w-8 h-8 text-gray-400" />
+                              <Camera className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                             )}
                           </div>
                         </label>
-                        <div>
+                        {/* <div className="flex-1 min-w-0">
                           <label htmlFor="profilePhoto">
                             <Button 
                               variant="outline" 
                               type="button" 
-                              className="font-semibold cursor-pointer"
+                              className="font-semibold cursor-pointer w-full sm:w-auto"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -518,11 +541,11 @@ export default function KYCPage() {
                             </Button>
                           </label>
                           <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 5MB</p>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                       <Input
                         label="First Name"
                         type="text"
@@ -531,6 +554,7 @@ export default function KYCPage() {
                         value={formData.firstName}
                         onChange={handleInputChange}
                         required
+                        className="w-full bg-primary-50 "
                       />
                       <Input
                         label="Last Name"
@@ -540,6 +564,7 @@ export default function KYCPage() {
                         value={formData.lastName}
                         onChange={handleInputChange}
                         required
+                        className="w-full bg-primary-50"
                       />
                       <Input
                         label="Date of Birth"
@@ -554,7 +579,7 @@ export default function KYCPage() {
                         type="text"
                         name="address"
                         placeholder="Street address"
-                        icon={<MapPin className="w-5 h-5" />}
+                        // icon={<MapPin className="w-5 h-5" />}
                         value={formData.address}
                         onChange={handleInputChange}
                         required
@@ -595,7 +620,7 @@ export default function KYCPage() {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Identity Verification</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Identity Verification</h2>
                     
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -626,7 +651,7 @@ export default function KYCPage() {
                       required
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 w-full">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                           ID Front Side
@@ -693,9 +718,9 @@ export default function KYCPage() {
               {currentStep === 3 && accountType === 'driver' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Driver's License</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Driver's License</h2>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                       <Input
                         label="License Number"
                         type="text"
@@ -717,7 +742,7 @@ export default function KYCPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 w-full">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                           License Front
@@ -784,9 +809,9 @@ export default function KYCPage() {
               {currentStep === 4 && accountType === 'driver' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Vehicle Information</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Vehicle Information</h2>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                       <Input
                         label="Vehicle Make"
                         type="text"
@@ -796,6 +821,7 @@ export default function KYCPage() {
                         value={formData.vehicleMake}
                         onChange={handleInputChange}
                         required
+                        className="w-full"
                       />
                       <Input
                         label="Vehicle Model"
@@ -805,6 +831,7 @@ export default function KYCPage() {
                         value={formData.vehicleModel}
                         onChange={handleInputChange}
                         required
+                        className="w-full"
                       />
                       <Input
                         label="Year"
@@ -814,6 +841,7 @@ export default function KYCPage() {
                         value={formData.vehicleYear}
                         onChange={handleInputChange}
                         required
+                        className="w-full"
                       />
                       <Input
                         label="License Plate"
@@ -823,6 +851,7 @@ export default function KYCPage() {
                         value={formData.vehiclePlate}
                         onChange={handleInputChange}
                         required
+                        className="w-full"
                       />
                     </div>
 
@@ -855,7 +884,7 @@ export default function KYCPage() {
                       </div>
                     </div>
 
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                       <Input
                         label="Insurance Provider"
                         type="text"
@@ -864,6 +893,7 @@ export default function KYCPage() {
                         value={formData.insuranceProvider}
                         onChange={handleInputChange}
                         required
+                        className="w-full"
                       />
                       <Input
                         label="Insurance Policy Number"
@@ -873,6 +903,7 @@ export default function KYCPage() {
                         value={formData.insuranceNumber}
                         onChange={handleInputChange}
                         required
+                        className="w-full"
                       />
                       <Input
                         label="Insurance Expiry"
@@ -882,6 +913,7 @@ export default function KYCPage() {
                         value={formData.insuranceExpiry}
                         onChange={handleInputChange}
                         required
+                        className="w-full"
                       />
                     </div>
 
@@ -921,7 +953,7 @@ export default function KYCPage() {
               {(currentStep === 3 && accountType === 'passenger') || (currentStep === 5 && accountType === 'driver') ? (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Information</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Payment Information</h2>
                     
                     {accountType === 'driver' ? (
                       <div className="space-y-4">
@@ -960,13 +992,13 @@ export default function KYCPage() {
               ) : null}
 
               {/* Navigation Buttons */}
-              <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mt-6 sm:mt-8 pt-6 border-t border-gray-200">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleBack}
                   disabled={currentStep === 1}
-                  className="font-semibold"
+                  className="font-semibold w-full sm:w-auto order-2 sm:order-1"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
@@ -977,7 +1009,7 @@ export default function KYCPage() {
                     type="button"
                     variant="primary"
                     onClick={handleNext}
-                    className="font-semibold border-2 border-primary-500"
+                    className="font-semibold border-2 border-primary-500 w-full sm:w-auto order-1 sm:order-2"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Saving...' : 'Continue'}
@@ -987,7 +1019,7 @@ export default function KYCPage() {
                   <Button
                     type="submit"
                     variant="primary"
-                    className="font-semibold border-2 border-primary-500"
+                    className="font-semibold border-2 border-primary-500 w-full sm:w-auto order-1 sm:order-2"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Completing...' : 'Complete Setup'}

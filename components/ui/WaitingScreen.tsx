@@ -88,51 +88,35 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-      <Card className="max-w-2xl w-full border-2 border-primary-200">
-        <CardContent className="p-8 text-center">
-          <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <Clock className="w-10 h-10 text-primary-600" />
+      <Card className="max-w-lg w-full border border-primary-200 shadow-lg">
+        <CardContent className="p-8 sm:p-10 text-center">
+          <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+            <CheckCircle className="w-10 h-10 text-primary-600 animate-pulse" />
+            <div className="absolute inset-0 border-4 border-primary-200 rounded-full animate-ping opacity-75"></div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            {userRole === 'driver' ? 'Driver' : 'Passenger'} Verification Pending
+          
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+            Verifying Your Account
           </h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Your account is being reviewed by our team. You'll be able to access your dashboard once your verification is approved.
+          
+          <p className="text-gray-600 mb-6">
+            Your {userRole === 'driver' ? 'driver' : 'passenger'} account is being verified automatically...
           </p>
           
-          <div className="bg-primary-50 border border-primary-200 rounded-lg p-6 mb-6 text-left">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-              <CheckCircle className="w-5 h-5 text-primary-600 mr-2" />
-              What happens next?
-            </h3>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-start">
-                <span className="text-primary-600 mr-2">•</span>
-                <span>Our team is reviewing your {userRole === 'driver' ? 'driver' : 'passenger'} application and documents</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary-600 mr-2">•</span>
-                <span>This process typically takes 24-48 hours</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary-600 mr-2">•</span>
-                <span>You'll receive an email notification once your account is approved</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary-600 mr-2">•</span>
-                <span>You can check back here anytime to see your status</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="flex items-center justify-center space-x-4 text-sm text-gray-600 mb-6">
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-primary-500 rounded-full mr-2 animate-pulse"></div>
-              <span>Status: {kycStatus === 'pending' ? 'Under Review' : 'Pending Approval'}</span>
+          <div className="bg-primary-50/50 border border-primary-200 rounded-lg p-5 mb-6">
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-700 mb-3">
+              <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
+              <span className="font-medium">Verification in progress</span>
             </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+              <div className="bg-primary-500 h-2 rounded-full animate-pulse" style={{ width: '75%' }}></div>
+            </div>
+            <p className="text-xs text-gray-600">
+              This process completes automatically in a few seconds
+            </p>
           </div>
 
-          <Button variant="primary" onClick={handleLogout}>
+          <Button variant="outline" onClick={handleLogout} className="w-full sm:w-auto">
             <LogOut className="w-4 h-4 mr-2" />
             Logout
           </Button>

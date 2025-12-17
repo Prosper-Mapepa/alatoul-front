@@ -128,8 +128,8 @@ export default function ForgotPasswordPage() {
               <Input
                 label="Email Address"
                 type="email"
-                placeholder="Enter your email"
-                icon={<Mail className="w-5 h-5" />}
+                placeholder=""
+                // icon={<Mail className="w-5 h-5" />}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="py-3 text-base mb-2"

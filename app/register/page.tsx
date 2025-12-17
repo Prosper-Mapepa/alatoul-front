@@ -149,8 +149,8 @@ export default function RegisterPage() {
                 label="Full Name"
                 type="text"
                 name="name"
-                placeholder="Enter your full name"
-                icon={<User className="w-5 h-5" />}
+                placeholder=""
+                // icon={<User className="w-5 h-5" />}
                 value={formData.name}
                 onChange={handleInputChange}
                 className="py-2.5 text-base"
@@ -161,8 +161,8 @@ export default function RegisterPage() {
                 label="Email Address"
                 type="email"
                 name="email"
-                placeholder="Enter your email"
-                icon={<Mail className="w-5 h-5" />}
+                placeholder=""
+                // icon={<Mail className="w-5 h-5" />}
                 value={formData.email}
                 onChange={handleInputChange}
                 className="py-2.5 text-base"
@@ -173,8 +173,8 @@ export default function RegisterPage() {
                 label="Phone Number"
                 type="tel"
                 name="phone"
-                placeholder="Enter your phone number"
-                icon={<Phone className="w-5 h-5" />}
+                placeholder=""
+                //icon={<Phone className="w-5 h-5" />}
                 value={formData.phone}
                 onChange={handleInputChange}
                 className="py-2.5 text-base"
@@ -186,12 +186,12 @@ export default function RegisterPage() {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                  {/* <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" /> */}
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
-                    placeholder="Create a password"
-                    className="w-full pl-10 pr-12 py-2.5 rounded-lg border-[0.5px] border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-base"
+                    placeholder=""
+                    className="w-full pl-4 pr-12 py-2.5 rounded-lg border-[0.5px] border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-base"
                     value={formData.password}
                     onChange={handleInputChange}
                     required
@@ -218,12 +218,12 @@ export default function RegisterPage() {
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                  {/* <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" /> */}
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
-                    placeholder="Confirm your password"
-                    className="w-full pl-10 pr-12 py-2.5 rounded-lg border-[0.5px] border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-base"
+                    placeholder=""
+                    className="w-full pl-4 pr-12 py-2.5 rounded-lg border-[0.5px] border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-base"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     required

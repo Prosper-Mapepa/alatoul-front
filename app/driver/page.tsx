@@ -38,6 +38,7 @@ import { LiveTrackingMap } from '@/components/ui/LiveTrackingMap'
 import { RouteMap } from '@/components/ui/RouteMap'
 import { WaitingScreen } from '@/components/ui/WaitingScreen'
 import { useRouter } from 'next/navigation'
+import Confetti from 'react-confetti'
 
 export default function DriverPage() {
   const router = useRouter()
@@ -70,6 +71,7 @@ export default function DriverPage() {
   const [isCheckingAccess, setIsCheckingAccess] = useState(true)
   const [showCongrats, setShowCongrats] = useState(false)
   const [hasShownCongrats, setHasShownCongrats] = useState(false)
+  const [windowDimensions, setWindowDimensions] = useState({ width: 0, height: 0 })
   const [vehicles, setVehicles] = useState<any[]>([])
   const [showVehicleForm, setShowVehicleForm] = useState(false)
   const [editingVehicle, setEditingVehicle] = useState<any>(null)
@@ -143,6 +145,21 @@ export default function DriverPage() {
   }
 
   useEffect(() => {
+    // Set window dimensions for confetti
+    if (typeof window !== 'undefined') {
+      const updateDimensions = () => {
+        setWindowDimensions({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        })
+      }
+      updateDimensions()
+      window.addEventListener('resize', updateDimensions)
+      return () => window.removeEventListener('resize', updateDimensions)
+    }
+  }, [])
+
+  useEffect(() => {
     checkAccess()
   }, [])
 
@@ -180,21 +197,20 @@ export default function DriverPage() {
       }
 
       // Check if user just got verified (show congrats message)
-      const wasVerified = localStorage.getItem('driver_was_verified')
+      // Check if user is verified and hasn't seen congrats before (persistent across sessions)
       const isNowVerified = (user.status === 'active' || user.status === 'verified') && kyc && kyc.status === 'approved'
+      const congratsKey = `has_seen_congrats_driver_${user.id}`
+      const hasSeenCongratsBefore = localStorage.getItem(congratsKey)
       
-      // Show congrats if user is verified and we haven't shown it before
-      if (isNowVerified && !wasVerified && !hasShownCongrats) {
+      // Show congrats if user is verified and hasn't seen it before (only once ever)
+      if (isNowVerified && !hasSeenCongratsBefore && !hasShownCongrats) {
         setShowCongrats(true)
         setHasShownCongrats(true)
-        localStorage.setItem('driver_was_verified', 'true')
-        // Auto-hide after 8 seconds
+        localStorage.setItem(congratsKey, 'true')
+        // Auto-hide after 10 seconds
         setTimeout(() => {
           setShowCongrats(false)
-        }, 8000)
-      } else if (isNowVerified && wasVerified) {
-        // User was already verified, don't show again
-        setHasShownCongrats(true)
+        }, 10000)
       }
 
       // If status is pending, show waiting screen
@@ -976,60 +992,73 @@ export default function DriverPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-4">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Congratulations Message */}
         {showCongrats && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all animate-scaleIn">
-              <div className="text-center">
-                {/* Animated Checkmark */}
-                <div className="mb-6 flex justify-center">
-                  <div className="relative">
-                    <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center animate-bounce">
-                      <CheckCircle className="w-16 h-16 text-green-600 animate-scaleIn" />
-                    </div>
-                    <div className="absolute -top-2 -right-2 animate-pulse">
-                      <Sparkles className="w-8 h-8 text-yellow-500" />
+          <>
+            {windowDimensions.width > 0 && windowDimensions.height > 0 && (
+              <Confetti
+                width={windowDimensions.width}
+                height={windowDimensions.height}
+                recycle={false}
+                numberOfPieces={400}
+                gravity={0.15}
+                initialVelocityY={15}
+                initialVelocityX={5}
+                colors={['#C1F11D', '#A8D414', '#8FB810', '#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA500', '#9B59B6']}
+                style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999, pointerEvents: 'none' }}
+              />
+            )}
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+              <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-10 max-w-lg w-full mx-4 transform transition-all animate-scaleIn border-2 border-primary-200">
+                <div className="text-center">
+                  {/* Animated Checkmark */}
+                  <div className="mb-6 flex justify-center">
+                    <div className="relative">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center animate-bounce shadow-lg">
+                        <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
+                      </div>
+                      <div className="absolute -top-1 -right-1 animate-pulse">
+                        <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
+                      </div>
                     </div>
                   </div>
+
+                  {/* Title */}
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                    Congratulations! 🎉
+                  </h2>
+
+                  {/* Message */}
+                  <p className="text-base sm:text-lg text-gray-600 mb-6 leading-relaxed">
+                    Your driver account has been verified! You can now start accepting rides and earning money.
+                  </p>
+
+                  {/* Action Button */}
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={() => setShowCongrats(false)}
+                    className="w-full font-semibold shadow-lg hover:shadow-xl transition-all"
+                  >
+                    Start Driving
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
                 </div>
-
-                {/* Title */}
-                <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-slideUp">
-                  Congratulations! 🎉
-                </h2>
-
-                {/* Message */}
-                <p className="text-lg text-gray-600 mb-6 animate-slideUp animation-delay-100">
-                  Your driver account has been verified! You can now start accepting rides and earning money.
-                </p>
-
-                {/* Action Button */}
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={() => setShowCongrats(false)}
-                  className="w-full font-semibold animate-slideUp animation-delay-200"
-                >
-                  Start Driving
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Header */}
-        <div className="mb-12">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-3">Driver<span className="text-primary-600">.</span></h1>
-              <p className="text-lg sm:text-xl md:text-xl text-gray-600 ">Manage your rides and earnings</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              {/* Notifications */}
-              <div className="relative" ref={notificationRef}>
+        <div className="mb-6 sm:mb-10">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900">
+              Driver<span className="text-primary-600">.</span>
+            </h1>
+            {/* Notifications */}
+            <div className="relative shrink-0" ref={notificationRef}>
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
                   className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -1101,54 +1130,64 @@ export default function DriverPage() {
                   </div>
                 )}
               </div>
-
+          </div>
+          <p className="text-base sm:text-lg md:text-xl text-gray-600">
+            Manage your rides and earnings
+          </p>
+          {/* Online/Offline Status and Button */}
+          <div className="flex items-center gap-3 mt-4 sm:mt-6">
+            <div
+              className={`flex items-center space-x-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-semibold text-sm sm:text-base ${
+                isOnline
+                  ? 'bg-primary-100 text-gray-900'
+                  : 'bg-gray-100 text-gray-700'
+              }`}
+            >
               <div
-                className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl font-semibold ${
-                  isOnline
-                    ? 'bg-primary-100 text-gray-900'
-                    : 'bg-gray-100 text-gray-700'
+                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${
+                  isOnline ? 'bg-primary-500' : 'bg-gray-400'
                 }`}
-              >
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    isOnline ? 'bg-primary-500' : 'bg-gray-400'
-                  }`}
-                />
-                <span>{isOnline ? 'Online' : 'Offline'}</span>
-              </div>
-              <Button
-                variant={isOnline ? 'outline' : 'primary'}
-                onClick={handleToggleOnline}
-                className="font-semibold border"
-                disabled={isLoading}
-              >
-                {isOnline ? 'Go Offline' : 'Go Online'}
-              </Button>
+              />
+              <span>{isOnline ? 'Online' : 'Offline'}</span>
             </div>
+            <Button
+              variant={isOnline ? 'outline' : 'primary'}
+              onClick={handleToggleOnline}
+              className="font-semibold border text-sm sm:text-base"
+              disabled={isLoading}
+            >
+              {isOnline ? 'Go Offline' : 'Go Online'}
+            </Button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-1 mb-10 border-b border-gray-200">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: Car },
-            { id: 'rides', label: 'My Rides', icon: Navigation },
-            { id: 'overview', label: 'Overview', icon: DollarSign },
-            { id: 'profile', label: 'Profile', icon: User },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-2 px-6 py-3 font-semibold transition-all duration-300 border-b-3 relative ${
-                activeTab === tab.id
-                  ? 'border-primary-500 text-gray-900 bg-primary-500 rounded-t-xl'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t-xl'
-              }`}
-            >
-              <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-gray-900' : 'text-gray-500'}`} />
-              <span>{tab.label}</span>
-            </button>
-          ))}
+        <div className="mb-8 sm:mb-10 border-b border-gray-200 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-gray-100">
+          <div className="flex space-x-2 min-w-max relative">
+            {[
+              { id: 'dashboard', label: 'Dashboard', shortLabel: 'Dashboard', icon: Car },
+              { id: 'rides', label: 'My Rides', shortLabel: 'Rides', icon: Navigation },
+              { id: 'overview', label: 'Overview', shortLabel: 'Overview', icon: DollarSign },
+              { id: 'profile', label: 'Profile', shortLabel: 'Profile', icon: User },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center space-x-2 text-sm sm:text-base px-4 sm:px-6 py-3 font-semibold transition-all duration-300 relative shrink-0 rounded-t-lg ${
+                  activeTab === tab.id
+                    ? 'text-gray-900 bg-primary-500 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <tab.icon className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${activeTab === tab.id ? 'text-gray-900' : 'text-gray-500'}`} />
+                <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                <span className="sm:hidden whitespace-nowrap">{tab.shortLabel}</span>
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-t-full"></div>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Dashboard Tab - Live Search for Rides */}
@@ -1366,46 +1405,50 @@ export default function DriverPage() {
                       pendingRides.map((ride) => (
                         <div
                           key={ride.id}
-                          className="p-6 border border-gray-200 rounded-2xl hover:border-primary-500 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-br hover:from-white hover:to-primary-50/30"
+                          className="p-4 sm:p-6 border border-gray-200 rounded-2xl hover:border-primary-500 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-br hover:from-white hover:to-primary-50/30"
                         >
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-3">
-                                <span className="text-xs text-gray-500">
-                                  {new Date(ride.createdAt).toLocaleString()}
-                                </span>
-                                {ride.passenger && (
-                                  <div className="flex items-center">
-                                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                    <span className="text-sm text-gray-600 ml-1">
-                                      {ride.passenger.averageRating || 'N/A'}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="space-y-2">
-                                <div className="flex items-center text-gray-700">
-                                  <MapPin className="w-4 h-4 mr-2 text-primary-600" />
-                                  {ride.pickupLocation}
+                          <div className="mb-4">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
+                              <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
+                                {new Date(ride.createdAt).toLocaleString()}
+                              </span>
+                              {ride.passenger && (
+                                <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-full">
+                                  <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                                  <span className="text-xs sm:text-sm text-gray-600 ml-1">
+                                    {ride.passenger.averageRating || 'N/A'}
+                                  </span>
                                 </div>
-                                <Navigation className="w-4 h-4 ml-2 text-gray-400" />
-                                <div className="flex items-center text-gray-700">
-                                  <MapPin className="w-4 h-4 mr-2 text-accent-600" />
-                                  {ride.destination}
-                                </div>
+                              )}
+                            </div>
+                            <div className="space-y-2 sm:space-y-3">
+                              <div className="flex items-start text-sm sm:text-base text-gray-700">
+                                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600 shrink-0 mt-0.5" />
+                                <span className="break-words flex-1">{ride.pickupLocation}</span>
                               </div>
-                              <div className="mt-3 flex items-center space-x-4 text-sm text-gray-600">
-                                {(ride as any).distance && <span>{(ride as any).distance} miles</span>}
-                                <span className="font-semibold text-gray-900">
-                                  Proposed: {formatCurrency(ride.proposedFare)}
-                                </span>
+                              <div className="flex justify-center py-1">
+                                <Navigation className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                              </div>
+                              <div className="flex items-start text-sm sm:text-base text-gray-700">
+                                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-accent-600 shrink-0 mt-0.5" />
+                                <span className="break-words flex-1">{ride.destination}</span>
                               </div>
                             </div>
+                            <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+                              {(ride as any).distance && (
+                                <span className="whitespace-nowrap">
+                                  {parseFloat((ride as any).distance).toFixed(2)} miles
+                                </span>
+                              )}
+                              <span className="font-semibold text-gray-900 text-sm sm:text-base">
+                                Proposed: {formatCurrency(ride.proposedFare)}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex space-x-3 pt-4 border-t border-gray-100">
+                          <div className="flex flex-row gap-2 sm:gap-3 pt-4 border-t border-gray-100">
                             <Button 
                               variant="primary" 
-                              className="flex-1 font-semibold border border-primary-500"
+                              className="flex-1 font-semibold border border-primary-500 text-sm sm:text-base"
                               onClick={() => handleAcceptRide(ride.id)}
                               disabled={isLoading}
                             >
@@ -1413,7 +1456,7 @@ export default function DriverPage() {
                             </Button>
                             <Button 
                               variant="outline" 
-                              className="font-semibold"
+                              className="flex-1 font-semibold text-sm sm:text-base"
                               onClick={() => {
                                 setRideToCounter(ride)
                                 setCounterOfferAmount(ride.proposedFare)
@@ -1424,7 +1467,7 @@ export default function DriverPage() {
                             </Button>
                             <Button 
                               variant="outline" 
-                              className="font-semibold text-red-600 border-red-300 hover:bg-red-50"
+                              className="flex-1 font-semibold text-red-600 border-red-300 hover:bg-red-50 text-sm sm:text-base"
                               onClick={() => {
                                 setRideToCancel(ride.id)
                                 setShowCancelModal(true)
@@ -1452,25 +1495,31 @@ export default function DriverPage() {
             </CardHeader>
             <CardContent className="p-6">
               {/* Sub-tabs for Scheduled, Completed, and Cancelled Rides */}
-              <div className="flex space-x-1 mb-6 border-b border-gray-200">
-                {[
-                  { id: 'scheduled', label: 'Scheduled Rides', icon: Calendar },
-                  { id: 'completed', label: 'Completed Rides', icon: Car },
-                  { id: 'cancelled', label: 'Cancelled Rides', icon: X },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setMyRidesSubTab(tab.id as 'completed' | 'scheduled' | 'cancelled')}
-                    className={`flex items-center space-x-2 px-6 py-3 font-semibold transition-all duration-300 border-b-3 relative ${
-                      myRidesSubTab === tab.id
-                        ? 'border-primary-500 text-gray-900 bg-primary-500 rounded-t-xl'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t-xl'
-                    }`}
-                  >
-                    <tab.icon className={`w-5 h-5 ${myRidesSubTab === tab.id ? 'text-gray-900' : 'text-gray-500'}`} />
-                    <span>{tab.label}</span>
-                  </button>
-                ))}
+              <div className="mb-6 border-b border-gray-200 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-gray-100">
+                <div className="flex space-x-2 min-w-max relative">
+                  {[
+                    { id: 'scheduled', label: 'Scheduled Rides', shortLabel: 'Scheduled', icon: Calendar },
+                    { id: 'completed', label: 'Completed Rides', shortLabel: 'Completed', icon: Car },
+                    { id: 'cancelled', label: 'Cancelled Rides', shortLabel: 'Cancelled', icon: X },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setMyRidesSubTab(tab.id as 'completed' | 'scheduled' | 'cancelled')}
+                      className={`flex items-center space-x-2 px-4 sm:px-6 py-3 text-sm sm:text-base font-semibold transition-all duration-300 relative shrink-0 rounded-t-lg ${
+                        myRidesSubTab === tab.id
+                          ? 'text-gray-900 bg-primary-500 shadow-sm'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <tab.icon className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${myRidesSubTab === tab.id ? 'text-gray-900' : 'text-gray-500'}`} />
+                      <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                      <span className="sm:hidden whitespace-nowrap">{tab.shortLabel}</span>
+                      {myRidesSubTab === tab.id && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-t-full"></div>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Completed Rides Content */}
@@ -1487,28 +1536,30 @@ export default function DriverPage() {
                       .map((ride) => (
                         <div
                           key={ride.id}
-                          className="group flex items-center justify-between p-5 border border-gray-200 rounded-2xl hover:border-primary-500 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-primary-50/30 hover:-translate-y-0.5"
+                          className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border border-gray-200 rounded-2xl hover:border-primary-500 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-primary-50/30 hover:-translate-y-0.5"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
-                              <span className="text-base font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                              <span className="text-sm sm:text-base font-semibold text-gray-700 bg-gray-100 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                                 {formatDate(new Date((ride as any).completedAt || ride.createdAt))}
                               </span>
                               {ride.passenger && (
-                                <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full">
-                                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                  <span className="text-base font-semibold text-gray-700 ml-1">
+                                <div className="flex items-center bg-yellow-50 px-2 sm:px-3 py-1 rounded-full">
+                                  <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                                  <span className="text-sm sm:text-base font-semibold text-gray-700 ml-1">
                                     {ride.passenger.averageRating || 'N/A'}
                                   </span>
                                 </div>
                               )}
                             </div>
-                            <div className="text-base text-gray-800 font-semibold">
-                              {ride.pickupLocation} → {ride.destination}
+                            <div className="text-sm sm:text-base text-gray-800 font-semibold break-words">
+                              <span className="block sm:inline">{ride.pickupLocation}</span>
+                              <span className="hidden sm:inline"> → </span>
+                              <span className="block sm:inline mt-1 sm:mt-0">{ride.destination}</span>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-extrabold text-primary-600 group-hover:scale-110 transition-transform inline-block">
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="text-xl sm:text-2xl font-extrabold text-primary-600 group-hover:scale-110 transition-transform inline-block">
                               {formatCurrency(ride.finalFare || ride.acceptedFare || ride.proposedFare)}
                             </p>
                           </div>
@@ -1532,34 +1583,36 @@ export default function DriverPage() {
                       .map((ride) => (
                         <div
                           key={ride.id}
-                          className="group flex items-center justify-between p-5 border border-gray-200 rounded-2xl hover:border-primary-500 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-primary-50/30 hover:-translate-y-0.5"
+                          className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border border-gray-200 rounded-2xl hover:border-primary-500 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-primary-50/30 hover:-translate-y-0.5"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
-                              <span className="text-base font-semibold text-gray-700 bg-blue-100 px-3 py-1 rounded-full">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                              <span className="text-sm sm:text-base font-semibold text-gray-700 bg-primary-100 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                                 {formatDate(ride.createdAt)}
                               </span>
                               {ride.passenger && (
-                                <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full">
-                                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                  <span className="text-base font-semibold text-gray-700 ml-1">
+                                <div className="flex items-center bg-yellow-50 px-2 sm:px-3 py-1 rounded-full">
+                                  <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                                  <span className="text-sm sm:text-base font-semibold text-gray-700 ml-1">
                                     {ride.passenger.averageRating || 'N/A'}
                                   </span>
                                 </div>
                               )}
                             </div>
-                            <div className="text-base text-gray-800 font-semibold">
-                              {ride.pickupLocation} → {ride.destination}
+                            <div className="text-sm sm:text-base text-gray-800 font-semibold break-words">
+                              <span className="block sm:inline">{ride.pickupLocation}</span>
+                              <span className="hidden sm:inline"> → </span>
+                              <span className="block sm:inline mt-1 sm:mt-0">{ride.destination}</span>
                             </div>
                             {(ride as any).scheduledTime && (
-                              <div className="text-sm text-gray-600 mt-2">
-                                <Clock className="w-4 h-4 inline mr-1" />
+                              <div className="text-xs sm:text-sm text-gray-600 mt-2">
+                                <Clock className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
                                 Scheduled for: {formatDate((ride as any).scheduledTime)}
                               </div>
                             )}
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-extrabold text-primary-600 group-hover:scale-110 transition-transform inline-block">
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="text-xl sm:text-2xl font-extrabold text-primary-600 group-hover:scale-110 transition-transform inline-block">
                               {formatCurrency(ride.finalFare || ride.acceptedFare || ride.proposedFare)}
                             </p>
                           </div>
@@ -1583,36 +1636,38 @@ export default function DriverPage() {
                       .map((ride) => (
                         <div
                           key={ride.id}
-                          className="group flex items-center justify-between p-5 border border-red-200 rounded-2xl hover:border-red-400 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-red-50/30 hover:-translate-y-0.5"
+                          className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border border-red-200 rounded-2xl hover:border-red-400 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-red-50/30 hover:-translate-y-0.5"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
-                              <span className="text-base font-semibold text-gray-700 bg-red-100 px-3 py-1 rounded-full">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                              <span className="text-sm sm:text-base font-semibold text-gray-700 bg-red-100 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                                 {formatDate((ride as any).cancelledAt || (ride as any).updatedAt || ride.createdAt)}
                               </span>
                               {(ride as any).cancellationReason && (
-                                <div className="flex items-center bg-red-50 px-3 py-1 rounded-full">
-                                  <AlertCircle className="w-4 h-4 text-red-500" />
-                                  <span className="text-sm font-semibold text-red-700 ml-1">
+                                <div className="flex items-center bg-red-50 px-2 sm:px-3 py-1 rounded-full">
+                                  <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-500 shrink-0" />
+                                  <span className="text-xs sm:text-sm font-semibold text-red-700 ml-1 break-words">
                                     {(ride as any).cancellationReason}
                                   </span>
                                 </div>
                               )}
                               {ride.passenger && (
-                                <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full">
-                                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                  <span className="text-base font-semibold text-gray-700 ml-1">
+                                <div className="flex items-center bg-yellow-50 px-2 sm:px-3 py-1 rounded-full">
+                                  <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                                  <span className="text-sm sm:text-base font-semibold text-gray-700 ml-1">
                                     {ride.passenger.averageRating || 'N/A'}
                                   </span>
                                 </div>
                               )}
                             </div>
-                            <div className="text-base text-gray-800 font-semibold">
-                              {ride.pickupLocation} → {ride.destination}
+                            <div className="text-sm sm:text-base text-gray-800 font-semibold break-words">
+                              <span className="block sm:inline">{ride.pickupLocation}</span>
+                              <span className="hidden sm:inline"> → </span>
+                              <span className="block sm:inline mt-1 sm:mt-0">{ride.destination}</span>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-extrabold text-red-600 group-hover:scale-110 transition-transform inline-block">
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="text-xl sm:text-2xl font-extrabold text-red-600 group-hover:scale-110 transition-transform inline-block">
                               {formatCurrency(ride.finalFare || ride.acceptedFare || ride.proposedFare || 0)}
                             </p>
                           </div>

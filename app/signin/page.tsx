@@ -27,6 +27,12 @@ export default function SignInPage() {
       const response = await api.login({ email, password })
       
       if (response.token) {
+        // Clear session storage to allow congrats message to show for verified users
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('has_seen_congrats')
+          sessionStorage.removeItem('has_seen_congrats_driver')
+        }
+        
         // Redirect based on user role
         if (response.user.role === 'admin') {
           router.push('/admin')
@@ -83,8 +89,8 @@ export default function SignInPage() {
               <Input
                 label="Email Address"
                 type="email"
-                placeholder="Enter your email"
-                icon={<Mail className="w-5 h-5" />}
+                placeholder=""
+                // icon={<Mail className="w-5 h-5" />}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value)
@@ -100,11 +106,11 @@ export default function SignInPage() {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                  {/* <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" /> */}
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    className="w-full pl-10 pr-12 py-2.5 rounded-lg border-[0.5px] border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-base"
+                    placeholder=""
+                    className="w-full pl-4 pr-12 py-2.5 rounded-lg border-[0.5px] border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-base"
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value)

@@ -35,6 +35,7 @@ import { useRouter } from 'next/navigation'
 import { formatCurrency, formatDate, formatTime, calculateDistance, getCurrentLocation } from '@/lib/utils'
 import { api, type Ride } from '@/lib/api'
 import { WaitingScreen } from '@/components/ui/WaitingScreen'
+import Confetti from 'react-confetti'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -93,6 +94,7 @@ export default function DashboardPage() {
   const [isCheckingAccess, setIsCheckingAccess] = useState(true)
   const [showCongrats, setShowCongrats] = useState(false)
   const [hasShownCongrats, setHasShownCongrats] = useState(false)
+  const [windowDimensions, setWindowDimensions] = useState({ width: 0, height: 0 })
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
   const [rideToCancel, setRideToCancel] = useState<string | null>(null)
@@ -154,6 +156,21 @@ export default function DashboardPage() {
     }
     setShowNotifications(false)
   }
+
+  useEffect(() => {
+    // Set window dimensions for confetti
+    if (typeof window !== 'undefined') {
+      const updateDimensions = () => {
+        setWindowDimensions({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        })
+      }
+      updateDimensions()
+      window.addEventListener('resize', updateDimensions)
+      return () => window.removeEventListener('resize', updateDimensions)
+    }
+  }, [])
 
   useEffect(() => {
     // Load user data and check access
@@ -221,21 +238,20 @@ export default function DashboardPage() {
       }
 
       // Check if user just got verified (show congrats message)
-      const wasVerified = localStorage.getItem('user_was_verified')
+      // Check if user is verified and hasn't seen congrats before (persistent across sessions)
       const isNowVerified = (user.status === 'active' || user.status === 'verified') && kyc && kyc.status === 'approved'
+      const congratsKey = `has_seen_congrats_passenger_${user.id}`
+      const hasSeenCongratsBefore = localStorage.getItem(congratsKey)
       
-      // Show congrats if user is verified and we haven't shown it before
-      if (isNowVerified && !wasVerified && !hasShownCongrats) {
+      // Show congrats if user is verified and hasn't seen it before (only once ever)
+      if (isNowVerified && !hasSeenCongratsBefore && !hasShownCongrats) {
         setShowCongrats(true)
         setHasShownCongrats(true)
-        localStorage.setItem('user_was_verified', 'true')
-        // Auto-hide after 8 seconds
+        localStorage.setItem(congratsKey, 'true')
+        // Auto-hide after 10 seconds
         setTimeout(() => {
           setShowCongrats(false)
-        }, 8000)
-      } else if (isNowVerified && wasVerified) {
-        // User was already verified, don't show again
-        setHasShownCongrats(true)
+        }, 10000)
       }
 
       // If status is pending, show waiting screen
@@ -1050,59 +1066,73 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-4">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Congratulations Message */}
         {showCongrats && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all animate-scaleIn">
-              <div className="text-center">
-                {/* Animated Checkmark */}
-                <div className="mb-6 flex justify-center">
-                  <div className="relative">
-                    <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center animate-bounce">
-                      <CheckCircle className="w-16 h-16 text-green-600 animate-scaleIn" />
-                    </div>
-                    <div className="absolute -top-2 -right-2 animate-pulse">
-                      <Sparkles className="w-8 h-8 text-yellow-500" />
+          <>
+            {windowDimensions.width > 0 && windowDimensions.height > 0 && (
+              <Confetti
+                width={windowDimensions.width}
+                height={windowDimensions.height}
+                recycle={false}
+                numberOfPieces={400}
+                gravity={0.15}
+                initialVelocityY={15}
+                initialVelocityX={5}
+                colors={['#C1F11D', '#A8D414', '#8FB810', '#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA500', '#9B59B6']}
+                style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999, pointerEvents: 'none' }}
+              />
+            )}
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+              <div className="bg-white rounded-3xl shadow-2xl p-8 sm:p-10 max-w-lg w-full mx-4 transform transition-all animate-scaleIn border-2 border-primary-200">
+                <div className="text-center">
+                  {/* Animated Checkmark */}
+                  <div className="mb-6 flex justify-center">
+                    <div className="relative">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center animate-bounce shadow-lg">
+                        <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
+                      </div>
+                      <div className="absolute -top-1 -right-1 animate-pulse">
+                        <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
+                      </div>
                     </div>
                   </div>
+
+                  {/* Title */}
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                    Congratulations! 🎉
+                  </h2>
+
+                  {/* Message */}
+                  <p className="text-base sm:text-lg text-gray-600 mb-6 leading-relaxed">
+                    Your account has been verified! You can now book rides and enjoy all the features of Alatoul.
+                  </p>
+
+                  {/* Action Button */}
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={() => setShowCongrats(false)}
+                    className="w-full font-semibold shadow-lg hover:shadow-xl transition-all"
+                  >
+                    Get Started
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
                 </div>
-
-                {/* Title */}
-                <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-slideUp">
-                  Congratulations! 🎉
-                </h2>
-
-                {/* Message */}
-                <p className="text-lg text-gray-600 mb-6 animate-slideUp animation-delay-100">
-                  Your account has been verified! You can now book rides and enjoy all the features of Alatoul.
-                </p>
-
-                {/* Action Button */}
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={() => setShowCongrats(false)}
-                  className="w-full font-semibold animate-slideUp animation-delay-200"
-                >
-                  Get Started
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Header */}
-        <div className="mb-10 flex items-start justify-between">
-          <div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4">Passenger<span className="text-primary-600 ">.</span></h1>
-          <p className="text-lg sm:text-xl md:text-xl text-gray-600">Manage your rides and profile</p>
-          </div>
-          <div className="flex items-center space-x-4">
+        <div className="mb-6 sm:mb-10">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900">
+              Passenger<span className="text-primary-600">.</span>
+            </h1>
             {/* Notifications */}
-            <div className="relative" ref={notificationRef}>
+            <div className="relative shrink-0" ref={notificationRef}>
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -1175,30 +1205,39 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
+          <p className="text-base sm:text-lg md:text-xl text-gray-600">
+            Manage your rides and profile
+          </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-1 mb-10 border-b border-gray-200 overflow-x-auto">
-          {[
-            { id: 'book-ride', label: 'Book a Ride', icon: Navigation },
-            { id: 'schedule-ride', label: 'Schedule Ride', icon: Calendar },
-            { id: 'trips', label: 'My Trips', icon: History },
-            { id: 'profile', label: 'My Profile', icon: User },
-            { id: 'overview', label: 'Overview', icon: Car },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-2 text-base px-6 py-3 font-semibold transition-all duration-300 border-b-3 relative whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'border-primary-500 text-gray-900 bg-primary-500 rounded-t-xl'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t-xl'
-              }`}
-            >
-              <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-gray-900' : 'text-gray-500'}`} />
-              <span>{tab.label}</span>
-            </button>
-          ))}
+        <div className="mb-8 sm:mb-10 border-b border-gray-200 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-gray-100">
+          <div className="flex space-x-2 min-w-max relative">
+            {[
+              { id: 'book-ride', label: 'Book a Ride', shortLabel: 'Book', icon: Navigation },
+              { id: 'schedule-ride', label: 'Schedule Ride', shortLabel: 'Schedule', icon: Calendar },
+              { id: 'trips', label: 'My Trips', shortLabel: 'Trips', icon: History },
+              { id: 'profile', label: 'My Profile', shortLabel: 'Profile', icon: User },
+              { id: 'overview', label: 'Overview', shortLabel: 'Overview', icon: Car },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center space-x-2 text-sm sm:text-base px-4 sm:px-6 py-3 font-semibold transition-all duration-300 relative shrink-0 rounded-t-lg ${
+                  activeTab === tab.id
+                    ? 'text-gray-900 bg-primary-500 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <tab.icon className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${activeTab === tab.id ? 'text-gray-900' : 'text-gray-500'}`} />
+                <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                <span className="sm:hidden whitespace-nowrap">{tab.shortLabel}</span>
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-t-full"></div>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Overview Tab */}
@@ -1480,22 +1519,24 @@ export default function DashboardPage() {
                           {acceptedDrivers.map((driver: any) => (
                             <div
                               key={driver.id}
-                              className="p-5 border border-[#C1F11D] rounded-xl bg-white shadow-md"
+                              className="p-4 sm:p-5 border border-[#C1F11D] rounded-xl bg-white shadow-md"
                             >
                               <div className="flex items-start justify-between mb-3">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-14 h-14 bg-gradient-to-br from-[#C1F11D] to-[#A8D919] rounded-full flex items-center justify-center shadow-md">
-                                    <Car className="w-7 h-7 text-gray-900" />
+                                <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#C1F11D] to-[#A8D919] rounded-full flex items-center justify-center shadow-md shrink-0">
+                                    <Car className="w-6 h-6 sm:w-7 sm:h-7 text-gray-900" />
                                   </div>
-                                  <div>
-                                    <h4 className="font-bold text-lg text-gray-900">
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-base sm:text-lg text-gray-900 truncate">
                                       {driver.name || driver.email?.split('@')[0] || 'Driver'}
                                     </h4>
-                                    <div className="flex items-center space-x-2 mt-1">
-                                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                      <p className="text-sm text-gray-600">
+                                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
+                                      <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                                      <p className="text-xs sm:text-sm text-gray-600">
                                         {typeof driver.averageRating === 'number' ? driver.averageRating.toFixed(1) : 'New'}
-                                        {driver.totalRides ? ` • ${driver.totalRides}+ rides` : ''}
+                                        {driver.totalRides && (
+                                          <span className="hidden sm:inline"> • {driver.totalRides}+ rides</span>
+                                        )}
                                         {typeof driver.distance === 'number' && !isNaN(driver.distance) && (
                                           <span> • {driver.distance.toFixed(1)} km away</span>
                                         )}
@@ -1504,14 +1545,14 @@ export default function DashboardPage() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                                <span className="text-base font-semibold text-gray-700">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mt-4 pt-4 border-t border-gray-100">
+                                <span className="text-sm sm:text-base font-semibold text-gray-700">
                                   {driver.hasCountered ? 'Counter Offer:' : 'Accepted Fare:'}
                                 </span>
-                                <div className="text-right">
-                                <span className="text-xl font-bold text-green-800">
-                                  {formatCurrency(driver.acceptedFare || driver.proposedFare)}
-                                </span>
+                                <div className="text-left sm:text-right">
+                                  <span className="text-lg sm:text-xl font-bold text-green-800">
+                                    {formatCurrency(driver.acceptedFare || driver.proposedFare)}
+                                  </span>
                                   {driver.hasCountered && (
                                     <p className="text-xs text-gray-500 mt-1">
                                       Your proposed: {formatCurrency(bookFare)}
@@ -1519,52 +1560,52 @@ export default function DashboardPage() {
                                   )}
                                 </div>
                               </div>
-                              <div className="flex gap-2 mt-4">
+                              <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 mt-4">
                                 {driver.hasCountered ? (
                                   <>
                                     <Button 
                                       variant="outline" 
                                       size="md" 
-                                      className="flex-1 font-semibold border border-red-300 text-red-600 hover:bg-red-50"
+                                      className="flex-1 font-semibold border border-red-300 text-red-600 hover:bg-red-50 text-sm sm:text-base"
                                       onClick={() => {
                                         setRideToCancel(driver.rideId || requestedRideId || '')
                                         setShowCancelModal(true)
                                       }}
                                     >
-                                      <X className="w-4 h-4 mr-2" />
+                                      <X className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                                       Decline
                                     </Button>
                                     <Button 
                                       variant="primary" 
                                       size="md" 
-                                      className="flex-1 font-semibold bg-[#C1F11D] hover:bg-[#A8D919] text-gray-900 border-2 border-[#C1F11D]"
+                                      className="flex-1 font-semibold bg-[#C1F11D] hover:bg-[#A8D919] text-gray-900 border-2 border-[#C1F11D] text-sm sm:text-base"
                                       onClick={() => handleSelectDriver(driver.id, driver.rideId || requestedRideId || '', driver.acceptedFare || driver.proposedFare)}
                                       disabled={isLoading || selectedDriverId === driver.id}
                                     >
-                                      <CheckCircle className="w-4 h-4 mr-2" />
+                                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                                       Accept Counter
                                     </Button>
                                   </>
                                 ) : (
                                   <>
-                                <Button 
-                                  variant="outline" 
-                                  size="md" 
-                                  className="flex-1 font-semibold border border-gray-300"
-                                  onClick={() => setViewingDriverProfile(driver)}
-                                >
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  View Profile
-                                </Button>
-                                <Button 
-                                  variant="primary" 
-                                  size="md" 
-                                  className="flex-1 font-semibold bg-[#C1F11D] hover:bg-[#A8D919] text-gray-900 border-2 border-[#C1F11D]"
-                                  onClick={() => handleSelectDriver(driver.id, driver.rideId || requestedRideId || '', driver.acceptedFare || driver.proposedFare)}
-                                  disabled={isLoading || selectedDriverId === driver.id}
-                                >
-                                  {selectedDriverId === driver.id ? 'Confirmed ✓' : 'Select This Driver'}
-                                </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="md" 
+                                      className="flex-1 font-semibold border border-gray-300 text-sm sm:text-base"
+                                      onClick={() => setViewingDriverProfile(driver)}
+                                    >
+                                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                                      View Profile
+                                    </Button>
+                                    <Button 
+                                      variant="primary" 
+                                      size="md" 
+                                      className="flex-1 font-semibold bg-[#C1F11D] hover:bg-[#A8D919] text-gray-900 border-2 border-[#C1F11D] text-sm sm:text-base"
+                                      onClick={() => handleSelectDriver(driver.id, driver.rideId || requestedRideId || '', driver.acceptedFare || driver.proposedFare)}
+                                      disabled={isLoading || selectedDriverId === driver.id}
+                                    >
+                                      {selectedDriverId === driver.id ? 'Confirmed ✓' : 'Select This Driver'}
+                                    </Button>
                                   </>
                                 )}
                               </div>
@@ -1918,25 +1959,31 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="p-6">
               {/* Sub-tabs for Scheduled, Completed, and Cancelled Rides */}
-              <div className="flex space-x-1 mb-6 border-b border-gray-200">
-                {[
-                  { id: 'scheduled', label: 'Scheduled Rides', icon: Calendar },
-                  { id: 'completed', label: 'Completed Rides', icon: Car },
-                  { id: 'cancelled', label: 'Cancelled Rides', icon: X },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setMyTripsSubTab(tab.id as 'completed' | 'scheduled' | 'cancelled')}
-                    className={`flex items-center space-x-2 px-6 py-3 font-semibold transition-all duration-300 border-b-3 relative ${
-                      myTripsSubTab === tab.id
-                        ? 'border-primary-500 text-gray-900 bg-primary-500 rounded-t-xl'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t-xl'
-                    }`}
-                  >
-                    <tab.icon className={`w-5 h-5 ${myTripsSubTab === tab.id ? 'text-gray-900' : 'text-gray-500'}`} />
-                    <span>{tab.label}</span>
-                  </button>
-                ))}
+              <div className="mb-6 border-b border-gray-200 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-gray-100">
+                <div className="flex space-x-2 min-w-max relative">
+                  {[
+                    { id: 'scheduled', label: 'Scheduled Rides', shortLabel: 'Scheduled', icon: Calendar },
+                    { id: 'completed', label: 'Completed Rides', shortLabel: 'Completed', icon: Car },
+                    { id: 'cancelled', label: 'Cancelled Rides', shortLabel: 'Cancelled', icon: X },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setMyTripsSubTab(tab.id as 'completed' | 'scheduled' | 'cancelled')}
+                      className={`flex items-center space-x-2 px-4 sm:px-6 py-3 text-sm sm:text-base font-semibold transition-all duration-300 relative shrink-0 rounded-t-lg ${
+                        myTripsSubTab === tab.id
+                          ? 'text-gray-900 bg-primary-500 shadow-sm'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <tab.icon className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${myTripsSubTab === tab.id ? 'text-gray-900' : 'text-gray-500'}`} />
+                      <span className="hidden sm:inline whitespace-nowrap">{tab.label}</span>
+                      <span className="sm:hidden whitespace-nowrap">{tab.shortLabel}</span>
+                      {myTripsSubTab === tab.id && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-t-full"></div>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Completed Rides Content */}
@@ -1962,33 +2009,35 @@ export default function DashboardPage() {
                       .map((ride) => (
                         <div
                           key={ride.id}
-                          className="group flex items-center justify-between p-5 border border-gray-200 rounded-2xl hover:border-primary-500 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-primary-50/30 hover:-translate-y-0.5"
+                          className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border border-gray-200 rounded-2xl hover:border-primary-500 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-primary-50/30 hover:-translate-y-0.5"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
-                              <span className="text-base font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                              <span className="text-sm sm:text-base font-semibold text-gray-700 bg-gray-100 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                                 {formatDate((ride as any).completedAt || ride.createdAt)}
                               </span>
                               {ride.driver && (
-                                <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full">
-                                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                  <span className="text-base font-semibold text-gray-700 ml-1">
+                                <div className="flex items-center bg-yellow-50 px-2 sm:px-3 py-1 rounded-full">
+                                  <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-yellow-500 shrink-0" />
+                                  <span className="text-sm sm:text-base font-semibold text-gray-700 ml-1">
                                     {(ride.driver as any).averageRating || 'N/A'}
                                   </span>
                                 </div>
                               )}
                             </div>
-                            <div className="text-base text-gray-800 font-semibold">
-                              {ride.pickupLocation} → {ride.destination}
+                            <div className="text-sm sm:text-base text-gray-800 font-semibold break-words">
+                              <span className="block sm:inline">{ride.pickupLocation}</span>
+                              <span className="hidden sm:inline"> → </span>
+                              <span className="block sm:inline mt-1 sm:mt-0">{ride.destination}</span>
                             </div>
                             {ride.driver && (
-                              <div className="text-sm text-gray-600 mt-2">
+                              <div className="text-xs sm:text-sm text-gray-600 mt-2">
                                 Driver: {(ride.driver as any).name || 'Unknown'}
                               </div>
                             )}
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-extrabold text-primary-600 group-hover:scale-110 transition-transform inline-block">
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="text-xl sm:text-2xl font-extrabold text-primary-600 group-hover:scale-110 transition-transform inline-block">
                               {formatCurrency(ride.finalFare || ride.acceptedFare || ride.proposedFare)}
                             </p>
                           </div>
@@ -2024,22 +2073,24 @@ export default function DashboardPage() {
                       .map((ride) => (
                         <div
                           key={ride.id}
-                          className="group flex items-center justify-between p-5 border border-blue-200 rounded-2xl hover:border-blue-400 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-blue-50/30 hover:-translate-y-0.5"
+                          className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border border-primary-200 rounded-2xl hover:border-primary-400 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-primary-50/30 hover:-translate-y-0.5"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                               {(ride as any).scheduledDate && (
-                                <span className="text-base font-semibold text-gray-700 bg-blue-100 px-3 py-1 rounded-full">
+                                <span className="text-sm sm:text-base font-semibold text-gray-700 bg-primary-100 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                                   {formatDate((ride as any).scheduledDate)} at {formatTime((ride as any).scheduledDate)}
                                 </span>
                               )}
                             </div>
-                            <div className="text-base text-gray-800 font-semibold">
-                              {ride.pickupLocation} → {ride.destination}
+                            <div className="text-sm sm:text-base text-gray-800 font-semibold break-words">
+                              <span className="block sm:inline">{ride.pickupLocation}</span>
+                              <span className="hidden sm:inline"> → </span>
+                              <span className="block sm:inline mt-1 sm:mt-0">{ride.destination}</span>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-extrabold text-blue-600 group-hover:scale-110 transition-transform inline-block">
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="text-xl sm:text-2xl font-extrabold text-primary-600 group-hover:scale-110 transition-transform inline-block">
                               {formatCurrency(ride.finalFare || ride.acceptedFare || ride.proposedFare)}
                             </p>
                           </div>
@@ -2065,28 +2116,30 @@ export default function DashboardPage() {
                       .map((ride) => (
                         <div
                           key={ride.id}
-                          className="group flex items-center justify-between p-5 border border-red-200 rounded-2xl hover:border-red-400 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-red-50/30 hover:-translate-y-0.5"
+                          className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-5 border border-red-200 rounded-2xl hover:border-red-400 hover:shadow-xl transition-all duration-300 bg-white hover:bg-gradient-to-r hover:from-white hover:to-red-50/30 hover:-translate-y-0.5"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
-                              <span className="text-base font-semibold text-gray-700 bg-red-100 px-3 py-1 rounded-full">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                              <span className="text-sm sm:text-base font-semibold text-gray-700 bg-red-100 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">
                                 {formatDate((ride as any).cancelledAt || (ride as any).updatedAt || ride.createdAt)}
                               </span>
                               {(ride as any).cancellationReason && (
-                                <div className="flex items-center bg-red-50 px-3 py-1 rounded-full">
-                                  <AlertCircle className="w-4 h-4 text-red-500" />
-                                  <span className="text-sm font-semibold text-red-700 ml-1">
+                                <div className="flex items-center bg-red-50 px-2 sm:px-3 py-1 rounded-full">
+                                  <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-500 shrink-0" />
+                                  <span className="text-xs sm:text-sm font-semibold text-red-700 ml-1 break-words">
                                     {(ride as any).cancellationReason}
                                   </span>
                                 </div>
                               )}
                             </div>
-                            <div className="text-base text-gray-800 font-semibold">
-                              {ride.pickupLocation} → {ride.destination}
+                            <div className="text-sm sm:text-base text-gray-800 font-semibold break-words">
+                              <span className="block sm:inline">{ride.pickupLocation}</span>
+                              <span className="hidden sm:inline"> → </span>
+                              <span className="block sm:inline mt-1 sm:mt-0">{ride.destination}</span>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-extrabold text-red-600 group-hover:scale-110 transition-transform inline-block">
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="text-xl sm:text-2xl font-extrabold text-red-600 group-hover:scale-110 transition-transform inline-block">
                               {formatCurrency(ride.finalFare || ride.acceptedFare || ride.proposedFare || 0)}
                             </p>
                           </div>
