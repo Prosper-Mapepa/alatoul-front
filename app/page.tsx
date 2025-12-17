@@ -237,7 +237,7 @@ export default function Home() {
                   size="lg" 
                   className="group w-auto px-8 py-5 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                  Book a Ride Now
+                  Book a Ride 
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
