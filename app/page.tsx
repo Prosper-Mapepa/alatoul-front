@@ -24,9 +24,9 @@ import {
 } from 'lucide-react'
 
 const rotatingPhrases = [
-  'Alatoul.',
-  'Ride Immediately.',
-  'All the Time.',
+  'Alatoul',
+  'Ride Immediately',
+  'All the Time',
   // 'Available All the Time.',
   // 'Easy & Reliable.'
 ]
@@ -192,7 +192,7 @@ export default function Home() {
         <div className="absolute top-24 sm:top-28 left-4 sm:left-6 lg:left-8 z-10 max-w-2xl">
           <div className="text-left">
             {/* Animated Text */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-8 mt-12 leading-tight animate-slide-up whitespace-nowrap">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 mt-8 leading-tight animate-slide-up whitespace-nowrap">
               <span 
                 className="rotating-text inline-block"
                 style={{
@@ -223,10 +223,11 @@ export default function Home() {
             </h1>
             
             {/* Description */}
-            <p className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-8 sm:mb-12 font-semibold leading-tight" style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.6)' }}>
-              <span className="block">Transportation</span>
-              <span className="block text-primary-300">available all the time.</span>
-              <span className="block mt-4 text-xl sm:text-xl md:text-2xl font-normal opacity-95">Propose your fare. Choose your driver. Go.</span>
+            <p className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl text-white mb-8 sm:mb-12 font-semibold leading-tight" style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.6)' }}>
+              <span className="block">Propose your fare•</span>
+              <span className="block ">Choose your driver•</span>
+              <span className="block text-primary-300">Go!</span>
+              {/* <span className="block mt-4 text-xl sm:text-xl md:text-2xl font-normal opacity-95">Propose your fare. Choose your driver. Go.</span> */}
             </p>
             
             {/* Buttons - Hidden on mobile, shown at bottom */}
