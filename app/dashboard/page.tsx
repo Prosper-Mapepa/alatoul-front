@@ -254,22 +254,53 @@ export default function DashboardPage() {
         }, 10000)
       }
 
-      // If status is pending, show waiting screen
-      if (user.status === 'pending') {
+      // If status is active, user is verified - proceed to dashboard
+      if (user.status === 'active') {
+        // User is approved, load dashboard data
+        loadUserData()
+        loadRides()
+        loadNotifications()
         setIsCheckingAccess(false)
         return
       }
 
-      // If status is verified but KYC is not approved, show waiting screen
-      if (user.status === 'verified' && kyc && kyc.status !== 'approved') {
+      // If status is pending or verified but KYC not approved, show waiting screen and poll for updates
+      if (user.status === 'pending' || (user.status === 'verified' && kyc && kyc.status !== 'approved')) {
         setIsCheckingAccess(false)
+        // Poll for verification status updates every 3 seconds
+        const pollInterval = setInterval(async () => {
+          try {
+            const updatedUser = (await api.getCurrentUser()) as any
+            let updatedKyc: any = null
+            try {
+              updatedKyc = await api.getKYC()
+            } catch (err) {
+              // KYC might not exist yet
+            }
+            
+            // If user is now active or verified with approved KYC, reload
+            if (updatedUser.status === 'active' || 
+                (updatedUser.status === 'verified' && updatedKyc && updatedKyc.status === 'approved')) {
+              clearInterval(pollInterval)
+              window.location.reload()
+            }
+          } catch (err) {
+            console.error('Failed to poll verification status:', err)
+          }
+        }, 3000)
+        
+        // Clear polling after 60 seconds to prevent infinite polling
+        setTimeout(() => {
+          clearInterval(pollInterval)
+        }, 60000)
+        
         return
       }
 
       // User is approved, load dashboard data
-    loadUserData()
-    loadRides()
-    loadNotifications()
+      loadUserData()
+      loadRides()
+      loadNotifications()
       setIsCheckingAccess(false)
     } catch (err) {
       console.error('Failed to check access:', err)
@@ -1053,7 +1084,10 @@ export default function DashboardPage() {
         />
       )
     }
-    if (currentUser.status === 'pending' || (currentUser.status === 'verified' && kycData && kycData.status !== 'approved')) {
+    // Show waiting screen if pending or verified but KYC not approved
+    // Note: active status means verified, so we don't show waiting screen for active users
+    if (currentUser.status === 'pending' || 
+        (currentUser.status === 'verified' && kycData && kycData.status !== 'approved')) {
       return (
         <WaitingScreen
           userRole="passenger"
